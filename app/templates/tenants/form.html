@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Mandant bearbeiten' if action == 'edit' else 'Mandant anlegen' }} - Signatur Manager{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+        <i class="fas fa-{{ 'edit' if action == 'edit' else 'plus-circle' }}"></i>
+        {{ 'Mandant bearbeiten' if action == 'edit' else 'Mandant anlegen' }}
+    </h2>
+    <a href="{{ url_for('tenants.list_tenants') }}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left"></i> Zurück zur Liste
+    </a>
+</div>
+
+<form method="POST" action="{{ url_for('tenants.edit_tenant', tenant_id=tenant.id) if action == 'edit' else url_for('tenants.add_tenant') }}">
+    <div class="row g-4">
+        <!-- Firmendaten -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-building"></i> Firmendaten</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-8">
+                            <label for="name" class="form-label">Firmenname <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="name" name="name" required value="{{ tenant.name or '' }}" placeholder="Firmenname eingeben">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="short_name" class="form-label">Firmenkürzel <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="short_name" name="short_name" required value="{{ tenant.short_name or '' }}" placeholder="z.B. TFG" pattern="[^\s]+" title="Keine Leerzeichen erlaubt">
+                            <div class="form-text">Ohne Leerzeichen. Wird für Ordnernamen verwendet.</div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="street" class="form-label">Straße</label>
+                        <input type="text" class="form-control" id="street" name="street" value="{{ tenant.street or '' }}" placeholder="Straße und Hausnummer">
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="zip_code" class="form-label">PLZ</label>
+                            <input type="text" class="form-control" id="zip_code" name="zip_code" value="{{ tenant.zip_code or '' }}" placeholder="PLZ">
+                        </div>
+                        <div class="col-md-8">
+                            <label for="city" class="form-label">Ort</label>
+                            <input type="text" class="form-control" id="city" name="city" value="{{ tenant.city or '' }}" placeholder="Ort">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="phone" class="form-label">Telefon</label>
+                            <input type="text" class="form-control" id="phone" name="phone" value="{{ tenant.phone or '' }}" placeholder="z.B. 040 12345-0">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="fax" class="form-label">Fax</label>
+                            <input type="text" class="form-control" id="fax" name="fax" value="{{ tenant.fax or '' }}" placeholder="z.B. 040 12345-99">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="website" class="form-label">Website</label>
+                        <input type="text" class="form-control" id="website" name="website" value="{{ tenant.website or '' }}" placeholder="z.B. https://www.firma.de">
+                    </div>
+                    <div class="mb-0">
+                        <label for="logo_url" class="form-label">Logo URL</label>
+                        <input type="text" class="form-control" id="logo_url" name="logo_url" value="{{ tenant.logo_url or '' }}" placeholder="z.B. https://www.firma.de/logo.png">
+                        <div class="form-text">Vollständige URL zum Firmenlogo (wird in der Signatur verwendet).</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SMB Einstellungen -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-network-wired"></i> SMB Einstellungen</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="smb_path" class="form-label">SMB Pfad</label>
+                        <input type="text" class="form-control" id="smb_path" name="smb_path" value="{{ tenant.smb_path or '' }}" placeholder="\\server\share\pfad">
+                        <div class="form-text">Netzwerkpfad für den Signatur-Export.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="smb_username" class="form-label">SMB Benutzername</label>
+                        <input type="text" class="form-control" id="smb_username" name="smb_username" value="{{ tenant.smb_username or '' }}" placeholder="DOMAIN\benutzer">
+                    </div>
+                    <div class="mb-3">
+                        <label for="smb_password" class="form-label">SMB Passwort</label>
+                        <input type="password" class="form-control" id="smb_password" name="smb_password" value="{{ tenant.smb_password or '' }}" placeholder="Passwort">
+                    </div>
+                    <div class="d-grid">
+                        <button type="button" class="btn btn-outline-info" id="testSmbBtn">
+                            <i class="fas fa-plug"></i> Verbindung testen
+                        </button>
+                    </div>
+                    <div id="smbTestResult" class="mt-3" style="display:none;"></div>
+                </div>
+            </div>
+
+            {% if tenant and tenant.logo_url %}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-image"></i> Logo-Vorschau</h5>
+                </div>
+                <div class="card-body text-center">
+                    <img src="{{ tenant.logo_url }}" alt="Logo" class="img-fluid" style="max-height: 100px;" onerror="this.parentElement.innerHTML='<span class=\'text-muted\'>Logo konnte nicht geladen werden.</span>';">
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="d-flex gap-2 mb-4">
+        <button type="submit" class="btn btn-primary btn-lg">
+            <i class="fas fa-save"></i> Speichern
+        </button>
+        <a href="{{ url_for('tenants.list_tenants') }}" class="btn btn-outline-secondary btn-lg">
+            <i class="fas fa-times"></i> Abbrechen
+        </a>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('testSmbBtn').addEventListener('click', function() {
+    var resultDiv = document.getElementById('smbTestResult');
+    var btn = this;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Teste...';
+    resultDiv.style.display = 'none';
+
+    var data = {
+        smb_path: document.getElementById('smb_path').value,
+        smb_username: document.getElementById('smb_username').value,
+        smb_password: document.getElementById('smb_password').value
+    };
+
+    fetch('{{ url_for("tenants.test_smb") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    })
+    .then(function(response) {
+        if (!response.ok) {
+            throw new Error('HTTP ' + response.status + ': ' + response.statusText);
+        }
+        return response.json();
+    })
+    .then(function(result) {
+        resultDiv.style.display = 'block';
+        if (result.success) {
+            resultDiv.innerHTML = '<div class="alert alert-success mb-0"><i class="fas fa-check-circle"></i> ' + (result.message || 'Verbindung erfolgreich!') + '</div>';
+        } else {
+            resultDiv.innerHTML = '<div class="alert alert-danger mb-0"><i class="fas fa-times-circle"></i> ' + (result.error || 'Unbekannter Fehler') + '</div>';
+        }
+    })
+    .catch(function(err) {
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = '<div class="alert alert-danger mb-0"><i class="fas fa-times-circle"></i> Verbindungsfehler: ' + err.message + '</div>';
+    })
+    .finally(function() {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-plug"></i> Verbindung testen';
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Mitarbeiter bearbeiten' if action == 'edit' else 'Mitarbeiter anlegen' }} - {{ tenant.name }} - Signatur Manager{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('tenants.list_tenants') }}">Mandanten</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('tenants.edit_tenant', tenant_id=tenant.id) }}">{{ tenant.name }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('signatures.employees', tenant_id=tenant.id) }}">Mitarbeiter</a></li>
+        <li class="breadcrumb-item active">{{ 'Bearbeiten' if action == 'edit' else 'Anlegen' }}</li>
+    </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+        <i class="fas fa-{{ 'user-edit' if action == 'edit' else 'user-plus' }}"></i>
+        {{ 'Mitarbeiter bearbeiten' if action == 'edit' else 'Neuen Mitarbeiter anlegen' }}
+    </h2>
+    <a href="{{ url_for('signatures.employees', tenant_id=tenant.id) }}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left"></i> Zurück zur Liste
+    </a>
+</div>
+
+<form method="POST" action="{{ url_for('signatures.edit_employee', tenant_id=tenant.id, employee_id=employee.id) if action == 'edit' else url_for('signatures.add_employee', tenant_id=tenant.id) }}">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="mb-0"><i class="fas fa-id-card"></i> Mitarbeiterdaten</h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-2">
+                    <label for="titel" class="form-label">Titel</label>
+                    <input type="text" class="form-control" id="titel" name="titel"
+                           value="{{ employee.titel or '' if employee else '' }}"
+                           placeholder="z.B. Dr., Dipl.-Ing., i. A., i. V. Dr.">
+                </div>
+                <div class="col-md-5">
+                    <label for="vorname" class="form-label">Vorname <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="vorname" name="vorname" required
+                           value="{{ employee.vorname or '' if employee else '' }}"
+                           placeholder="Vorname">
+                </div>
+                <div class="col-md-5">
+                    <label for="nachname" class="form-label">Nachname <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="nachname" name="nachname" required
+                           value="{{ employee.nachname or '' if employee else '' }}"
+                           placeholder="Nachname">
+                </div>
+                <div class="col-md-6">
+                    <label for="email" class="form-label">E-Mail Adresse <span class="text-danger">*</span></label>
+                    <input type="email" class="form-control" id="email" name="email" required
+                           value="{{ employee.email or '' if employee else '' }}"
+                           placeholder="max.mustermann@firma.de">
+                </div>
+                <div class="col-md-6">
+                    <label for="abteilung" class="form-label">Abteilung</label>
+                    <input type="text" class="form-control" id="abteilung" name="abteilung"
+                           value="{{ employee.abteilung or '' if employee else '' }}"
+                           placeholder="z.B. IT-Abteilung">
+                </div>
+                <div class="col-md-6">
+                    <label for="durchwahl" class="form-label">Durchwahl</label>
+                    <input type="text" class="form-control" id="durchwahl" name="durchwahl"
+                           value="{{ employee.durchwahl or '' if employee else '' }}"
+                           placeholder="z.B. 040 12345 - 678">
+                </div>
+                <div class="col-md-6">
+                    <label for="optionale_rufnummer" class="form-label">Optionale Rufnummer</label>
+                    <input type="text" class="form-control" id="optionale_rufnummer" name="optionale_rufnummer"
+                           value="{{ employee.optionale_rufnummer or '' if employee else '' }}"
+                           placeholder="z.B. 0175 1234567">
+                </div>
+            </div>
+        </div>
+        <div class="card-footer bg-white d-flex justify-content-between">
+            <a href="{{ url_for('signatures.employees', tenant_id=tenant.id) }}" class="btn btn-outline-secondary btn-lg">
+                <i class="fas fa-times"></i> Abbrechen
+            </a>
+            <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-save"></i> Speichern
+            </button>
+        </div>
+    </div>
+</form>
+{% endblock %}

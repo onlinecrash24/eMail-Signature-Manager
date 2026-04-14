@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}CSV Import - {{ tenant.name }} - Signatur Manager{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('tenants.list_tenants') }}">Mandanten</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('tenants.edit_tenant', tenant_id=tenant.id) }}">{{ tenant.name }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('signatures.employees', tenant_id=tenant.id) }}">Mitarbeiter</a></li>
+        <li class="breadcrumb-item active">CSV Import</li>
+    </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-file-csv"></i> CSV Import - {{ tenant.name }}</h2>
+    <a href="{{ url_for('signatures.employees', tenant_id=tenant.id) }}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left"></i> Zurück zur Mitarbeiterliste
+    </a>
+</div>
+
+{% if results %}
+<!-- Import Results -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white">
+        <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Import-Ergebnis</h5>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="alert alert-success mb-0 text-center">
+                    <h3 class="mb-0">{{ results.imported }}</h3>
+                    <small>Neu importiert</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="alert alert-info mb-0 text-center">
+                    <h3 class="mb-0">{{ results.updated }}</h3>
+                    <small>Aktualisiert</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="alert alert-{{ 'danger' if results.errors > 0 else 'secondary' }} mb-0 text-center">
+                    <h3 class="mb-0">{{ results.errors }}</h3>
+                    <small>Fehler</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row g-4">
+    <!-- Upload Form -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-upload"></i> CSV-Datei hochladen</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data" action="{{ url_for('signatures.import_csv', tenant_id=tenant.id) }}">
+                    <div class="mb-4">
+                        <label for="csvFile" class="form-label">CSV-Datei auswählen</label>
+                        <input type="file" class="form-control form-control-lg" id="csvFile" name="csv_file" accept=".csv" required>
+                        <div class="form-text">Nur .csv Dateien werden akzeptiert.</div>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-file-import"></i> Importieren
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instructions -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="fas fa-info-circle"></i> CSV-Format</h5>
+            </div>
+            <div class="card-body">
+                <h6>Anforderungen:</h6>
+                <ul class="mb-3">
+                    <li><strong>Trennzeichen:</strong> Semikolon (<code>;</code>)</li>
+                    <li><strong>Zeichensatz:</strong> UTF-8</li>
+                    <li><strong>Erste Zeile:</strong> Spaltennamen (Header)</li>
+                </ul>
+
+                <h6>Erforderliche Spalten:</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Spaltenname</th>
+                                <th>Beschreibung</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>Vorname</code></td><td>Vorname des Mitarbeiters</td></tr>
+                            <tr><td><code>Nachname</code></td><td>Nachname des Mitarbeiters</td></tr>
+                            <tr><td><code>Titel</code></td><td>Titel (z.B. Dr., Prof.)</td></tr>
+                            <tr><td><code>Durchwahl</code></td><td>Telefondurchwahl</td></tr>
+                            <tr><td><code>E-Mail Adresse</code></td><td>E-Mail Adresse</td></tr>
+                            <tr><td><code>Optionale Rufnummer</code></td><td>z.B. Mobilnummer</td></tr>
+                            <tr><td><code>Abteilung</code></td><td>Abteilung</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h6 class="mt-3">Beispiel:</h6>
+                <div class="bg-dark text-light p-3 rounded" style="font-family: monospace; font-size: 0.8rem; overflow-x: auto;">
+                    <div>Vorname;Nachname;Titel;Durchwahl;E-Mail Adresse;Optionale Rufnummer;Abteilung</div>
+                    <div>Max;Mustermann;Dr.;0441 12345-422;max@firma.de;0175 1234567;IT</div>
+                    <div>Erika;Musterfrau;;0441 12345-423;erika@firma.de;;Vertrieb</div>
+                </div>
+
+                <div class="mt-3">
+                    <a href="{{ url_for('static', filename='sample.csv') }}" class="btn btn-outline-secondary btn-sm" download>
+                        <i class="fas fa-download"></i> Muster-CSV herunterladen
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

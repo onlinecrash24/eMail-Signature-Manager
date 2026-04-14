@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Benutzerverwaltung - Signatur Manager{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-users-cog"></i> Benutzerverwaltung</h2>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+        <i class="fas fa-user-plus"></i> Benutzer hinzufügen
+    </button>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        {% if users|length > 0 %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Benutzername</th>
+                        <th>Admin</th>
+                        <th>Passwort ändern nötig</th>
+                        <th class="text-end">Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>
+                            <i class="fas fa-user-circle text-muted"></i>
+                            <strong>{{ user.username }}</strong>
+                        </td>
+                        <td>
+                            {% if user.is_admin %}
+                            <span class="badge bg-primary"><i class="fas fa-shield-alt"></i> Ja</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Nein</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.must_change_password %}
+                            <span class="badge bg-warning text-dark"><i class="fas fa-exclamation-circle"></i> Ja</span>
+                            {% else %}
+                            <span class="badge bg-success">Nein</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <form method="POST" action="{{ url_for('auth.reset_password', user_id=user.id) }}" class="d-inline" onsubmit="return confirm('Passwort für {{ user.username }} wirklich zurücksetzen?');">
+                                <input type="hidden" name="user_id" value="{{ user.id }}">
+                                <button type="submit" class="btn btn-sm btn-outline-warning" title="Passwort zurücksetzen">
+                                    <i class="fas fa-undo"></i> Zurücksetzen
+                                </button>
+                            </form>
+                            {% if user.username != current_user.username %}
+                            <form method="POST" action="{{ url_for('auth.delete_user', user_id=user.id) }}" class="d-inline" onsubmit="return confirm('Benutzer {{ user.username }} wirklich löschen?');">
+                                <input type="hidden" name="user_id" value="{{ user.id }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Löschen">
+                                    <i class="fas fa-trash"></i> Löschen
+                                </button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="fas fa-users fa-3x mb-3"></i>
+            <p>Keine Benutzer vorhanden.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Add User Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('auth.add_user') }}">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="addUserModalLabel">
+                        <i class="fas fa-user-plus"></i> Benutzer hinzufügen
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Benutzername</label>
+                        <input type="text" class="form-control" id="username" name="username" required placeholder="Benutzername eingeben">
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Passwort</label>
+                        <input type="password" class="form-control" id="password" name="password" required minlength="8" placeholder="Mindestens 8 Zeichen">
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="is_admin" name="is_admin" value="1">
+                        <label class="form-check-label" for="is_admin">Administrator</label>
+                        <div class="form-text">Administratoren können Benutzer verwalten.</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Hinzufügen
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

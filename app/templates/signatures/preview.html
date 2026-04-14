@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+
+{% block title %}Signatur-Vorschau - {{ employee.vorname }} {{ employee.nachname }} - Signatur Manager{% endblock %}
+
+{% block extra_css %}
+<style>
+    .signature-preview-frame {
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        background: #fff;
+        min-height: 300px;
+    }
+    .signature-preview-frame iframe {
+        width: 100%;
+        min-height: 300px;
+        border: none;
+    }
+    .signature-preview-frame pre {
+        padding: 1.5rem;
+        margin: 0;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        font-size: 0.9rem;
+        min-height: 300px;
+        background: #f8f9fa;
+    }
+    .employee-info dt {
+        font-weight: 600;
+        color: #495057;
+    }
+    .employee-info dd {
+        margin-bottom: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('tenants.list_tenants') }}">Mandanten</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('tenants.edit_tenant', tenant_id=tenant.id) }}">{{ tenant.name }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('signatures.employees', tenant_id=tenant.id) }}">Mitarbeiter</a></li>
+        <li class="breadcrumb-item active">Vorschau</li>
+    </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+        <i class="fas fa-eye"></i> Signatur-Vorschau - {{ employee.vorname }} {{ employee.nachname }}
+    </h2>
+    <a href="{{ url_for('signatures.employees', tenant_id=tenant.id) }}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left"></i> Zurück zur Mitarbeiterliste
+    </a>
+</div>
+
+<div class="row g-4">
+    <!-- Signature Preview (main area) -->
+    <div class="col-lg-9">
+        <!-- Tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="prev-html-tab" data-bs-toggle="tab" data-bs-target="#prev-html" type="button" role="tab">
+                    <i class="fas fa-file-code"></i> HTML
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="prev-txt-tab" data-bs-toggle="tab" data-bs-target="#prev-txt" type="button" role="tab">
+                    <i class="fas fa-file-alt"></i> TXT
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="prev-rtf-tab" data-bs-toggle="tab" data-bs-target="#prev-rtf" type="button" role="tab">
+                    <i class="fas fa-file-word"></i> RTF
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <!-- HTML Preview -->
+            <div class="tab-pane fade show active" id="prev-html" role="tabpanel">
+                <div class="signature-preview-frame">
+                    {% if html_signature %}
+                    <iframe id="htmlSigPreview" srcdoc="{{ html_signature|e }}"></iframe>
+                    {% else %}
+                    <div class="text-center py-5 text-muted">
+                        <i class="fas fa-exclamation-circle fa-2x mb-3"></i>
+                        <p>Keine HTML-Signatur vorhanden.<br>Bitte erstellen Sie zuerst eine HTML-Vorlage und generieren Sie die Signaturen.</p>
+                        <a href="{{ url_for('tenants.templates', tenant_id=tenant.id) }}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-code"></i> Vorlage bearbeiten
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- TXT Preview -->
+            <div class="tab-pane fade" id="prev-txt" role="tabpanel">
+                <div class="signature-preview-frame">
+                    {% if txt_signature %}
+                    <pre>{{ txt_signature }}</pre>
+                    {% else %}
+                    <div class="text-center py-5 text-muted">
+                        <i class="fas fa-exclamation-circle fa-2x mb-3"></i>
+                        <p>Keine Text-Signatur vorhanden.<br>Bitte erstellen Sie zuerst eine TXT-Vorlage und generieren Sie die Signaturen.</p>
+                        <a href="{{ url_for('tenants.templates', tenant_id=tenant.id) }}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-code"></i> Vorlage bearbeiten
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- RTF Preview -->
+            <div class="tab-pane fade" id="prev-rtf" role="tabpanel">
+                <div class="signature-preview-frame">
+                    {% if rtf_signature %}
+                    <div class="p-4">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            RTF-Dateien können nicht direkt im Browser angezeigt werden.
+                            Die Datei wurde erfolgreich generiert.
+                        </div>
+                        <div class="bg-light p-3 rounded" style="font-family: monospace; font-size: 0.8rem; max-height: 300px; overflow: auto; white-space: pre-wrap;">{{ rtf_signature[:500] }}{% if rtf_signature|length > 500 %}...{% endif %}</div>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5 text-muted">
+                        <i class="fas fa-exclamation-circle fa-2x mb-3"></i>
+                        <p>Keine RTF-Signatur vorhanden.<br>Bitte erstellen Sie zuerst eine RTF-Vorlage und generieren Sie die Signaturen.</p>
+                        <a href="{{ url_for('tenants.templates', tenant_id=tenant.id) }}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-code"></i> Vorlage bearbeiten
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Employee Info Sidebar -->
+    <div class="col-lg-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h6 class="mb-0"><i class="fas fa-user"></i> Mitarbeiterdaten</h6>
+            </div>
+            <div class="card-body employee-info">
+                <dl class="mb-0">
+                    {% if employee.titel %}
+                    <dt>Titel</dt>
+                    <dd>{{ employee.titel }}</dd>
+                    {% endif %}
+
+                    <dt>Vorname</dt>
+                    <dd>{{ employee.vorname }}</dd>
+
+                    <dt>Nachname</dt>
+                    <dd>{{ employee.nachname }}</dd>
+
+                    <dt>E-Mail</dt>
+                    <dd><a href="mailto:{{ employee.email }}">{{ employee.email }}</a></dd>
+
+                    {% if employee.durchwahl %}
+                    <dt>Durchwahl</dt>
+                    <dd>{{ employee.durchwahl }}</dd>
+                    {% endif %}
+
+                    {% if employee.optionale_rufnummer %}
+                    <dt>Optionale Rufnummer</dt>
+                    <dd>{{ employee.optionale_rufnummer }}</dd>
+                    {% endif %}
+
+                    {% if employee.abteilung %}
+                    <dt>Abteilung</dt>
+                    <dd><span class="badge bg-info text-dark">{{ employee.abteilung }}</span></dd>
+                    {% endif %}
+                </dl>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mt-3">
+            <div class="card-header bg-white">
+                <h6 class="mb-0"><i class="fas fa-building"></i> Mandant</h6>
+            </div>
+            <div class="card-body employee-info">
+                <dl class="mb-0">
+                    <dt>Firma</dt>
+                    <dd>{{ tenant.name }}</dd>
+
+                    {% if tenant.city %}
+                    <dt>Ort</dt>
+                    <dd>{{ tenant.zip_code }} {{ tenant.city }}</dd>
+                    {% endif %}
+
+                    {% if tenant.phone %}
+                    <dt>Telefon</dt>
+                    <dd>{{ tenant.phone }}</dd>
+                    {% endif %}
+                </dl>
+            </div>
+        </div>
+
+        <div class="d-grid gap-2 mt-3">
+            <a href="{{ url_for('signatures.generate_signatures', tenant_id=tenant.id) }}" class="btn btn-outline-success">
+                <i class="fas fa-sync-alt"></i> Signaturen neu generieren
+            </a>
+            <a href="{{ url_for('signatures.employees', tenant_id=tenant.id) }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Zurück
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-resize iframe to fit content
+document.addEventListener('DOMContentLoaded', function() {
+    var iframe = document.getElementById('htmlSigPreview');
+    if (iframe) {
+        iframe.addEventListener('load', function() {
+            try {
+                var body = iframe.contentDocument.body;
+                iframe.style.height = (body.scrollHeight + 40) + 'px';
+            } catch(e) {
+                iframe.style.height = '400px';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

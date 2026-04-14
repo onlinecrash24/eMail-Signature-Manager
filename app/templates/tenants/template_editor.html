@@ -1,0 +1,468 @@
+{% extends "base.html" %}
+
+{% block title %}Vorlagen bearbeiten - {{ tenant.name }} - Signatur Manager{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/monokai.min.css">
+<style>
+    .container { max-width: 100% !important; padding: 0 1.5rem; }
+    .CodeMirror {
+        height: 600px;
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        font-size: 0.9rem;
+    }
+    .preview-panel {
+        height: 600px;
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        background: #fff;
+        overflow: auto;
+    }
+    .preview-panel iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+    .preview-panel pre {
+        padding: 1rem;
+        margin: 0;
+        height: 100%;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        font-size: 0.85rem;
+        overflow: auto;
+    }
+    .var-table .btn-copy {
+        padding: 0.1rem 0.4rem;
+        font-size: 0.75rem;
+    }
+    .var-table td, .var-table th {
+        padding: 0.35rem 0.5rem;
+        font-size: 0.85rem;
+        vertical-align: middle;
+    }
+    .var-table code {
+        background: #e9ecef;
+        padding: 0.15rem 0.4rem;
+        border-radius: 0.25rem;
+        font-size: 0.8rem;
+        cursor: pointer;
+        user-select: all;
+    }
+    .editor-tabs .nav-link {
+        font-weight: 600;
+    }
+    .editor-tabs .nav-link.active {
+        background-color: #0d6efd;
+        color: #fff;
+    }
+    #variablePanel {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    .copy-toast {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 9999;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-0"><i class="fas fa-code"></i> Vorlagen bearbeiten</h2>
+        <small class="text-muted">{{ tenant.name }}</small>
+    </div>
+    <div class="d-flex gap-2">
+        <button type="button" class="btn btn-outline-info" data-bs-toggle="collapse" data-bs-target="#variablePanel">
+            <i class="fas fa-tags"></i> Variablen
+        </button>
+        <a href="{{ url_for('tenants.list_tenants') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Zurück
+        </a>
+    </div>
+</div>
+
+<!-- Variable Reference Panel (collapsible) -->
+<div class="collapse mb-3" id="variablePanel">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h6 class="mb-0"><i class="fas fa-tags"></i> Verfügbare Variablen</h6>
+            <small class="text-muted">Klicken Sie auf eine Variable, um sie in die Zwischenablage zu kopieren</small>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-sm table-hover var-table mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Variable</th>
+                            <th>Beschreibung</th>
+                            <th>Beispiel</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>{% raw %}{{vorname}}{% endraw %}</code></td>
+                            <td>Vorname</td>
+                            <td class="text-muted">Max</td>
+                            <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{vorname}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td><code>{% raw %}{{nachname}}{% endraw %}</code></td>
+                            <td>Nachname</td>
+                            <td class="text-muted">Mustermann</td>
+                            <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{nachname}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td><code>{% raw %}{{titel}}{% endraw %}</code></td>
+                            <td>Titel</td>
+                            <td class="text-muted">Dr.</td>
+                            <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{titel}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td><code>{% raw %}{{durchwahl}}{% endraw %}</code></td>
+                            <td>Durchwahl</td>
+                            <td class="text-muted">0441 12345 - 422</td>
+                            <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{durchwahl}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td><code>{% raw %}{{email}}{% endraw %}</code></td>
+                            <td>E-Mail Adresse</td>
+                            <td class="text-muted">max@firma.de</td>
+                            <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{email}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td><code>{% raw %}{{optionale_rufnummer}}{% endraw %}</code></td>
+                            <td>Optionale Rufnummer</td>
+                            <td class="text-muted">0175 1234567</td>
+                            <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{optionale_rufnummer}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td><code>{% raw %}{{abteilung}}{% endraw %}</code></td>
+                            <td>Abteilung</td>
+                            <td class="text-muted">IT</td>
+                            <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{abteilung}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td><code>{% raw %}{{firma}}{% endraw %}</code></td>
+                            <td>Firmenname</td>
+                            <td class="text-muted">{{ tenant.name }}</td>
+                            <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{firma}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td><code>{% raw %}{{strasse}}{% endraw %}</code></td>
+                            <td>Straße</td>
+                            <td class="text-muted">{{ tenant.street or '' }}</td>
+                            <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{strasse}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td><code>{% raw %}{{plz}}{% endraw %}</code></td>
+                            <td>PLZ</td>
+                            <td class="text-muted">{{ tenant.zip_code or '' }}</td>
+                            <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{plz}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td><code>{% raw %}{{ort}}{% endraw %}</code></td>
+                            <td>Ort</td>
+                            <td class="text-muted">{{ tenant.city or '' }}</td>
+                            <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{ort}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td><code>{% raw %}{{telefon}}{% endraw %}</code></td>
+                            <td>Telefon</td>
+                            <td class="text-muted">{{ tenant.phone or '' }}</td>
+                            <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{telefon}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td><code>{% raw %}{{fax}}{% endraw %}</code></td>
+                            <td>Fax</td>
+                            <td class="text-muted">{{ tenant.fax or '' }}</td>
+                            <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{fax}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td><code>{% raw %}{{website}}{% endraw %}</code></td>
+                            <td>Website</td>
+                            <td class="text-muted">{{ tenant.website or '' }}</td>
+                            <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{website}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td><code>{% raw %}{{logo_url}}{% endraw %}</code></td>
+                            <td>Logo URL</td>
+                            <td class="text-muted">{{ tenant.logo_url or '' }}</td>
+                            <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{logo_url}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Editor Form -->
+<form method="POST" id="templateForm">
+    <!-- Tab Navigation -->
+    <ul class="nav nav-pills editor-tabs mb-3" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="html-tab" data-bs-toggle="pill" data-bs-target="#html-pane" type="button" role="tab">
+                <i class="fas fa-file-code"></i> HTML
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="txt-tab" data-bs-toggle="pill" data-bs-target="#txt-pane" type="button" role="tab">
+                <i class="fas fa-file-alt"></i> TXT
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="rtf-tab" data-bs-toggle="pill" data-bs-target="#rtf-pane" type="button" role="tab">
+                <i class="fas fa-file-word"></i> RTF
+            </button>
+        </li>
+        <li class="ms-auto d-flex align-items-center gap-2">
+            <button type="button" class="btn btn-outline-success btn-sm" onclick="updatePreview()">
+                <i class="fas fa-sync-alt"></i> Vorschau aktualisieren
+            </button>
+            <button type="submit" class="btn btn-primary btn-sm">
+                <i class="fas fa-save"></i> Speichern
+            </button>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+        <!-- HTML Tab -->
+        <div class="tab-pane fade show active" id="html-pane" role="tabpanel">
+            <div class="row g-3">
+                <div class="col-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0"><i class="fas fa-edit"></i> HTML-Vorlage</h6>
+                    </div>
+                    <textarea id="htmlEditor" name="html_template">{{ tenant.html_template or '' }}</textarea>
+                </div>
+                <div class="col-8">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0"><i class="fas fa-eye"></i> Vorschau</h6>
+                    </div>
+                    <div class="preview-panel">
+                        <iframe id="htmlPreview"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TXT Tab -->
+        <div class="tab-pane fade" id="txt-pane" role="tabpanel">
+            <div class="row g-3">
+                <div class="col-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0"><i class="fas fa-edit"></i> Text-Vorlage</h6>
+                    </div>
+                    <textarea id="txtEditor" name="txt_template">{{ tenant.txt_template or '' }}</textarea>
+                </div>
+                <div class="col-8">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0"><i class="fas fa-eye"></i> Vorschau</h6>
+                    </div>
+                    <div class="preview-panel">
+                        <pre id="txtPreview"></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RTF Tab -->
+        <div class="tab-pane fade" id="rtf-pane" role="tabpanel">
+            <div class="row g-3">
+                <div class="col-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0"><i class="fas fa-edit"></i> RTF-Vorlage</h6>
+                    </div>
+                    <textarea id="rtfEditor" name="rtf_template">{{ tenant.rtf_template or '' }}</textarea>
+                </div>
+                <div class="col-8">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0"><i class="fas fa-eye"></i> Vorschau</h6>
+                    </div>
+                    <div class="preview-panel">
+                        <div class="p-3">
+                            <div class="alert alert-info mb-0">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>Hinweis:</strong> Die RTF-Vorlage kann hier direkt bearbeitet werden.
+                                Alternativ wird die RTF-Datei automatisch aus der HTML-Vorlage generiert,
+                                wenn kein eigenes RTF-Template hinterlegt ist.
+                            </div>
+                            <div id="rtfPreview" class="mt-3" style="font-family: monospace; font-size: 0.85rem; white-space: pre-wrap;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Buttons -->
+    <div class="d-flex gap-2 mt-4 mb-3">
+        <button type="submit" class="btn btn-primary btn-lg">
+            <i class="fas fa-save"></i> Speichern
+        </button>
+        <a href="{{ url_for('tenants.list_tenants') }}" class="btn btn-outline-secondary btn-lg">
+            <i class="fas fa-arrow-left"></i> Zurück
+        </a>
+    </div>
+</form>
+
+<!-- Copy Toast -->
+<div class="copy-toast" id="copyToast" style="display:none;">
+    <div class="alert alert-success py-2 px-3 shadow mb-0">
+        <i class="fas fa-check"></i> In die Zwischenablage kopiert!
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+<script>
+(function() {
+    // Sample data for live preview
+    var sampleData = {
+        '{% raw %}{{vorname}}{% endraw %}': 'Max',
+        '{% raw %}{{nachname}}{% endraw %}': 'Mustermann',
+        '{% raw %}{{titel}}{% endraw %}': 'Dr.',
+        '{% raw %}{{durchwahl}}{% endraw %}': '0441 12345 - 422',
+        '{% raw %}{{email}}{% endraw %}': 'max@firma.de',
+        '{% raw %}{{optionale_rufnummer}}{% endraw %}': '0175 1234567',
+        '{% raw %}{{abteilung}}{% endraw %}': 'IT',
+        '{% raw %}{{firma}}{% endraw %}': {{ tenant.name|tojson }},
+        '{% raw %}{{strasse}}{% endraw %}': {{ (tenant.street or 'Musterstraße 1')|tojson }},
+        '{% raw %}{{plz}}{% endraw %}': {{ (tenant.zip_code or '26121')|tojson }},
+        '{% raw %}{{ort}}{% endraw %}': {{ (tenant.city or 'Oldenburg')|tojson }},
+        '{% raw %}{{telefon}}{% endraw %}': {{ (tenant.phone or '0441 12345-0')|tojson }},
+        '{% raw %}{{fax}}{% endraw %}': {{ (tenant.fax or '0441 12345-99')|tojson }},
+        '{% raw %}{{website}}{% endraw %}': {{ (tenant.website or 'https://www.firma.de')|tojson }},
+        '{% raw %}{{logo_url}}{% endraw %}': {{ (tenant.logo_url or 'https://via.placeholder.com/200x60?text=Logo')|tojson }}
+    };
+
+    function replaceVariables(text) {
+        if (!text) return '';
+        var result = text;
+        for (var key in sampleData) {
+            result = result.split(key).join(sampleData[key]);
+        }
+        return result;
+    }
+
+    // Initialize CodeMirror editors
+    var htmlCM = CodeMirror.fromTextArea(document.getElementById('htmlEditor'), {
+        mode: 'htmlmixed',
+        theme: 'monokai',
+        lineNumbers: true,
+        lineWrapping: true,
+        indentUnit: 2,
+        tabSize: 2,
+        autoCloseTags: true
+    });
+
+    var txtCM = CodeMirror.fromTextArea(document.getElementById('txtEditor'), {
+        mode: 'text/plain',
+        theme: 'monokai',
+        lineNumbers: true,
+        lineWrapping: true
+    });
+
+    var rtfCM = CodeMirror.fromTextArea(document.getElementById('rtfEditor'), {
+        mode: 'text/plain',
+        theme: 'monokai',
+        lineNumbers: true,
+        lineWrapping: true
+    });
+
+    // Update preview function
+    window.updatePreview = function() {
+        // HTML Preview
+        var htmlContent = replaceVariables(htmlCM.getValue());
+        var iframe = document.getElementById('htmlPreview');
+        var iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+        iframeDoc.open();
+        iframeDoc.write(htmlContent);
+        iframeDoc.close();
+
+        // TXT Preview
+        var txtContent = replaceVariables(txtCM.getValue());
+        document.getElementById('txtPreview').textContent = txtContent;
+
+        // RTF Preview
+        var rtfContent = rtfCM.getValue();
+        if (rtfContent) {
+            document.getElementById('rtfPreview').textContent = replaceVariables(rtfContent);
+        }
+    };
+
+    // Auto-update preview on content changes (debounced)
+    var previewTimer = null;
+    function debouncedPreview() {
+        clearTimeout(previewTimer);
+        previewTimer = setTimeout(function() {
+            updatePreview();
+        }, 800);
+    }
+
+    htmlCM.on('change', debouncedPreview);
+    txtCM.on('change', debouncedPreview);
+    rtfCM.on('change', debouncedPreview);
+
+    // Sync CodeMirror content back to textareas before form submit
+    document.getElementById('templateForm').addEventListener('submit', function() {
+        htmlCM.save();
+        txtCM.save();
+        rtfCM.save();
+    });
+
+    // Refresh CodeMirror when switching tabs (needed for correct rendering)
+    document.querySelectorAll('[data-bs-toggle="pill"]').forEach(function(tab) {
+        tab.addEventListener('shown.bs.tab', function() {
+            htmlCM.refresh();
+            txtCM.refresh();
+            rtfCM.refresh();
+            updatePreview();
+        });
+    });
+
+    // Initial preview on page load
+    setTimeout(function() {
+        updatePreview();
+    }, 300);
+})();
+
+// Copy variable to clipboard
+function copyVar(variable) {
+    navigator.clipboard.writeText(variable).then(function() {
+        var toast = document.getElementById('copyToast');
+        toast.style.display = 'block';
+        setTimeout(function() {
+            toast.style.display = 'none';
+        }, 1500);
+    }).catch(function() {
+        // Fallback for older browsers
+        var textarea = document.createElement('textarea');
+        textarea.value = variable;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        var toast = document.getElementById('copyToast');
+        toast.style.display = 'block';
+        setTimeout(function() {
+            toast.style.display = 'none';
+        }, 1500);
+    });
+}
+</script>
+{% endblock %}
