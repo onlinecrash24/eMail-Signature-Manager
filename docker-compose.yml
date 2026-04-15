@@ -12,7 +12,7 @@ services:
       - GENERATED_DIR=/opt/signature-tool/data/generated
       - UPLOAD_FOLDER=/opt/signature-tool/data/uploads
       - LISTEN_PORT=5010
-      - DEFAULT_LANG=en
+      - DEFAULT_LANG=de
     volumes:
       - signature-data:/opt/signature-tool/data
     restart: unless-stopped

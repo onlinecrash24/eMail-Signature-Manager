@@ -3,15 +3,6 @@
    Supplements Bootstrap 5
    ============================================ */
 
-/* --- Navbar fix: ensure it stays on top and dropdowns work --- */
-.navbar {
-    position: relative;
-    z-index: 1050;
-}
-.navbar .dropdown-menu {
-    z-index: 1060;
-}
-
 /* --- General --- */
 body {
     background-color: #f5f7fa;
