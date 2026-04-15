@@ -271,7 +271,7 @@ def _create_demo_data():
         phone='+49 40 12345-0',
         fax='+49 40 12345-99',
         website='https://www.northwind-solutions.de',
-        logo_url='https://via.placeholder.com/150x60?text=Northwind',
+        logo_url='https://github.com/onlinecrash24/signatur-manager/blob/main/app/static/img/logo.png',
         html_template=demo_html,
         txt_template=demo_txt,
         rtf_template=demo_rtf,
