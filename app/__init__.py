@@ -64,11 +64,9 @@ def create_app():
         return {'t': t, 'current_lang': lang}
 
     # Create tables, run migrations, create default admin and demo data
+    # Use a file lock to prevent race conditions with multiple Gunicorn workers
     with app.app_context():
-        db.create_all()
-        _run_migrations()
-        _create_default_admin()
-        _create_demo_data()
+        _init_database(app)
 
     @app.route('/')
     def index():
@@ -107,6 +105,31 @@ def create_app():
         )
 
     return app
+
+
+def _init_database(app):
+    """Initialize database with file lock to handle multiple Gunicorn workers."""
+    lock_path = os.path.join(app.config['DATA_DIR'], '.db_init.lock')
+    lock_file = open(lock_path, 'w')
+    try:
+        # fcntl is Unix-only; on Windows (dev) we skip locking
+        import fcntl
+        fcntl.flock(lock_file, fcntl.LOCK_EX)
+    except ImportError:
+        pass
+
+    try:
+        db.create_all()
+        _run_migrations()
+        _create_default_admin()
+        _create_demo_data()
+    finally:
+        try:
+            import fcntl
+            fcntl.flock(lock_file, fcntl.LOCK_UN)
+        except ImportError:
+            pass
+        lock_file.close()
 
 
 def _run_migrations():
