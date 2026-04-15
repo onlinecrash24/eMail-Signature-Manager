@@ -3,8 +3,8 @@
 {% block title %}{{ t('editor.title') }} - {{ tenant.name }} - {{ t('app.name') }}{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/monokai.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/codemirror.min.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/monokai.min.css') }}">
 <style>
     .container { max-width: 100% !important; padding: 0 1.5rem; }
     .CodeMirror {
@@ -322,11 +322,11 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+<script src="{{ url_for('static', filename='js/codemirror/codemirror.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/codemirror/xml.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/codemirror/javascript.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/codemirror/css.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/codemirror/htmlmixed.min.js') }}"></script>
 <script>
 (function() {
     // Sample data for live preview (variable name → value)
