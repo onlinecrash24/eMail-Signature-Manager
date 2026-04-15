@@ -1,4 +1,4 @@
-# E-Mail Signature Manager
+# eMail Signature Manager
 
 Web-based tool for creating and managing email signatures across multiple tenants (companies). Employee data can be imported via CSV or managed manually. Signatures are generated in HTM, TXT, and RTF format and optionally deployed to an SMB network share.
 

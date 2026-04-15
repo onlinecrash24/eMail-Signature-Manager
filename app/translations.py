@@ -1,12 +1,12 @@
-"""Simple dict-based i18n for E-Mail Signature Manager."""
+"""Simple dict-based i18n for eMail Signature Manager."""
 
 from flask import session
 
 TRANSLATIONS = {
     'en': {
         # App
-        'app.name': 'E-Mail Signature Manager',
-        'app.footer': 'E-Mail Signature Manager v1.0',
+        'app.name': 'eMail Signature Manager',
+        'app.footer': 'eMail Signature Manager v1.0',
 
         # Navbar
         'nav.dashboard': 'Dashboard',
@@ -257,8 +257,8 @@ TRANSLATIONS = {
     },
     'de': {
         # App
-        'app.name': 'E-Mail Signatur Manager',
-        'app.footer': 'E-Mail Signatur Manager v1.0',
+        'app.name': 'eMail Signature Manager',
+        'app.footer': 'eMail Signature Manager v1.0',
 
         # Navbar
         'nav.dashboard': 'Dashboard',

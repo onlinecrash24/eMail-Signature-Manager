@@ -1,4 +1,4 @@
-# E-Mail Signatur Manager
+# eMail Signature Manager
 
 Webbasiertes Tool zur Erstellung und Verwaltung von E-Mail-Signaturen für mehrere Mandanten (Firmen). Mitarbeiterdaten werden per CSV importiert oder manuell gepflegt, Signaturen in HTM, TXT und RTF generiert und optional auf einen SMB-Share deployt.
 
