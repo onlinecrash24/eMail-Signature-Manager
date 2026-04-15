@@ -94,7 +94,7 @@ python run.py
 
 Die Zugangsdaten werden über die Umgebungsvariablen in der `docker-compose.yml` festgelegt.
 
-Beim ersten Start wird automatisch eine Demo-Firma (**Northwind Solutions GmbH**) mit einem Beispiel-Mitarbeiter und Signaturvorlagen angelegt.
+Beim ersten Start wird automatisch eine Demo-Firma (**Demo Corp GmbH**) mit einem Beispiel-Mitarbeiter und Signaturvorlagen angelegt.
 
 ---
 
@@ -207,7 +207,7 @@ Generierte Signaturen werden pro Mitarbeiter in einem Ordner abgelegt. Der Ordne
 └── <ad-username>-<Firmenkürzel>.rtf
 ```
 
-**Beispiel:** E-Mail `j.bergmann@northwind-solutions.de`, Firmenkürzel `NWS` → Ordner und Dateien: `j.bergmann-NWS.htm`, `.txt`, `.rtf`
+**Beispiel:** E-Mail `j.bergmann@demo-corp.example`, Firmenkürzel `NWS` → Ordner und Dateien: `j.bergmann-NWS.htm`, `.txt`, `.rtf`
 
 - Umlaute im Ordner-/Dateinamen werden automatisch ersetzt (ä→ae, ö→oe, ü→ue, ß→ss)
 - In der HTM-Signatur werden Umlaute als HTML-Entities kodiert (z.B. `ä` → `&auml;`)

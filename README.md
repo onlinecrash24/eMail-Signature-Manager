@@ -94,7 +94,7 @@ python run.py
 
 Credentials are configured via environment variables in `docker-compose.yml`.
 
-On first start, a demo company (**Northwind Solutions GmbH**) with one sample employee and signature templates is created automatically.
+On first start, a demo company (**Demo Corp GmbH**) with one sample employee and signature templates is created automatically.
 
 ---
 
@@ -207,7 +207,7 @@ Generated signatures are stored per employee in a dedicated folder. The folder n
 └── <ad-username>-<ShortName>.rtf
 ```
 
-**Example:** Email `j.bergmann@northwind-solutions.de`, short name `NWS` → folder and files: `j.bergmann-NWS.htm`, `.txt`, `.rtf`
+**Example:** Email `j.bergmann@demo-corp.example`, short name `NWS` → folder and files: `j.bergmann-NWS.htm`, `.txt`, `.rtf`
 
 - Umlauts in folder/file names are replaced automatically (ä→ae, ö→oe, ü→ue, ß→ss)
 - Umlauts in HTM signatures are encoded as HTML entities (e.g. `ä` → `&auml;`)

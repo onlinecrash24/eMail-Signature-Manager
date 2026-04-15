@@ -110,13 +110,13 @@
                         <tr>
                             <td><code>{% raw %}{{vorname}}{% endraw %}</code></td>
                             <td>{{ t('var.vorname') }}</td>
-                            <td class="text-muted">Max</td>
+                            <td class="text-muted">Julia</td>
                             <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{vorname}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
                         </tr>
                         <tr>
                             <td><code>{% raw %}{{nachname}}{% endraw %}</code></td>
                             <td>{{ t('var.nachname') }}</td>
-                            <td class="text-muted">Mustermann</td>
+                            <td class="text-muted">Bergmann</td>
                             <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{nachname}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
                         </tr>
                         <tr>
@@ -128,19 +128,19 @@
                         <tr>
                             <td><code>{% raw %}{{durchwahl}}{% endraw %}</code></td>
                             <td>{{ t('var.durchwahl') }}</td>
-                            <td class="text-muted">0441 12345 - 422</td>
+                            <td class="text-muted">+49 40 12345-67</td>
                             <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{durchwahl}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
                         </tr>
                         <tr>
                             <td><code>{% raw %}{{email}}{% endraw %}</code></td>
                             <td>{{ t('var.email') }}</td>
-                            <td class="text-muted">max@firma.de</td>
+                            <td class="text-muted">j.bergmann@demo-corp.example</td>
                             <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{email}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
                         </tr>
                         <tr>
                             <td><code>{% raw %}{{optionale_rufnummer}}{% endraw %}</code></td>
                             <td>{{ t('var.optionale_rufnummer') }}</td>
-                            <td class="text-muted">0175 1234567</td>
+                            <td class="text-muted">+49 177 12345678</td>
                             <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{optionale_rufnummer}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
                         </tr>
                         <tr>
@@ -329,31 +329,47 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
 <script>
 (function() {
-    // Sample data for live preview
-    var sampleData = {
-        '{% raw %}{{vorname}}{% endraw %}': 'Max',
-        '{% raw %}{{nachname}}{% endraw %}': 'Mustermann',
-        '{% raw %}{{titel}}{% endraw %}': 'Dr.',
-        '{% raw %}{{durchwahl}}{% endraw %}': '0441 12345 - 422',
-        '{% raw %}{{email}}{% endraw %}': 'max@firma.de',
-        '{% raw %}{{optionale_rufnummer}}{% endraw %}': '0175 1234567',
-        '{% raw %}{{abteilung}}{% endraw %}': 'IT',
-        '{% raw %}{{firma}}{% endraw %}': {{ tenant.name|tojson }},
-        '{% raw %}{{strasse}}{% endraw %}': {{ (tenant.street or 'Musterstraße 1')|tojson }},
-        '{% raw %}{{plz}}{% endraw %}': {{ (tenant.zip_code or '26121')|tojson }},
-        '{% raw %}{{ort}}{% endraw %}': {{ (tenant.city or 'Oldenburg')|tojson }},
-        '{% raw %}{{telefon}}{% endraw %}': {{ (tenant.phone or '0441 12345-0')|tojson }},
-        '{% raw %}{{fax}}{% endraw %}': {{ (tenant.fax or '0441 12345-99')|tojson }},
-        '{% raw %}{{website}}{% endraw %}': {{ (tenant.website or 'https://www.firma.de')|tojson }},
-        '{% raw %}{{logo_url}}{% endraw %}': {{ (tenant.logo_url or 'https://via.placeholder.com/200x60?text=Logo')|tojson }}
+    // Sample data for live preview (variable name → value)
+    var sampleVars = {
+        'vorname': 'Julia',
+        'nachname': 'Bergmann',
+        'titel': '',
+        'durchwahl': '+49 40 12345-67',
+        'email': 'j.bergmann@demo-corp.example',
+        'optionale_rufnummer': '+49 177 12345678',
+        'abteilung': 'IT Department',
+        'firma': {{ tenant.name|tojson }},
+        'strasse': {{ (tenant.street or 'Jungfernstieg 42')|tojson }},
+        'plz': {{ (tenant.zip_code or '20354')|tojson }},
+        'ort': {{ (tenant.city or 'Hamburg')|tojson }},
+        'telefon': {{ (tenant.phone or '+49 40 12345-0')|tojson }},
+        'fax': {{ (tenant.fax or '+49 40 12345-99')|tojson }},
+        'website': {{ (tenant.website or 'https://www.demo-corp.example')|tojson }},
+        'logo_url': {{ (tenant.logo_url or '')|tojson }}
     };
 
     function replaceVariables(text) {
         if (!text) return '';
         var result = text;
-        for (var key in sampleData) {
-            result = result.split(key).join(sampleData[key]);
+
+        {% raw %}
+        // Process {% if var %}...{% endif %} blocks
+        result = result.replace(/\{%[-\s]*if\s+(\w+)\s*%\}([\s\S]*?)\{%[-\s]*endif\s*%\}/g, function(match, varName, content) {
+            var val = sampleVars[varName];
+            if (val && val.length > 0) {
+                return content;
+            }
+            return '';
+        });
+        {% endraw %}
+
+        {% raw %}
+        // Replace {{variable}} placeholders
+        for (var key in sampleVars) {
+            result = result.split('{{' + key + '}}').join(sampleVars[key]);
         }
+        {% endraw %}
+
         return result;
     }
 

@@ -263,15 +263,15 @@ def _create_demo_data():
 }"""
 
     tenant = Tenant(
-        name='Northwind Solutions GmbH',
-        short_name='NWS',
+        name='Demo Corp GmbH',
+        short_name='DEMO',
         street='Jungfernstieg 42',
         zip_code='20354',
         city='Hamburg',
         phone='+49 40 12345-0',
         fax='+49 40 12345-99',
-        website='https://www.northwind-solutions.de',
-        logo_url='https://github.com/onlinecrash24/signatur-manager/blob/main/app/static/img/logo.png',
+        website='https://www.demo-corp.example',
+        logo_url='https://raw.githubusercontent.com/onlinecrash24/signatur-manager/main/app/static/img/logo.png',
         html_template=demo_html,
         txt_template=demo_txt,
         rtf_template=demo_rtf,
@@ -285,7 +285,7 @@ def _create_demo_data():
         nachname='Bergmann',
         titel='',
         durchwahl='+49 40 12345-67',
-        email='j.bergmann@northwind-solutions.de',
+        email='j.bergmann@demo-corp.example',
         optionale_rufnummer='+49 177 12345678',
         abteilung='IT Department',
     )
