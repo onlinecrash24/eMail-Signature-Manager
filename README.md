@@ -1,28 +1,29 @@
-# E-Mail Signatur Manager
+# E-Mail Signature Manager
 
-Webbasiertes Tool zur Erstellung und Verwaltung von E-Mail-Signaturen für mehrere Mandanten (Firmen). Mitarbeiterdaten werden per CSV importiert oder manuell gepflegt, Signaturen in HTM, TXT und RTF generiert und optional auf einen SMB-Share deployt.
+Web-based tool for creating and managing email signatures across multiple tenants (companies). Employee data can be imported via CSV or managed manually. Signatures are generated in HTM, TXT, and RTF format and optionally deployed to an SMB network share.
 
 ---
 
 ## Features
 
-- **Mandantenverwaltung** – Mehrere Firmen mit eigenen Vorlagen, Firmenkürzel und SMB-Einstellungen
-- **Template-Editor** – HTML, TXT und RTF Vorlagen mit CodeMirror-Editor, Live-Vorschau und Variablen-Referenz
-- **Mitarbeiterverwaltung** – CSV-Import (Semikolon-getrennt, UTF-8/CP1252/Latin-1), manuelles Anlegen, Bearbeiten und Löschen
-- **Globale Mitarbeiterübersicht** – Alle Mitarbeiter mandantenübergreifend mit Suchfunktion
-- **Signatur-Generierung** – Automatische Erstellung von `.htm`, `.txt` und `.rtf` pro Mitarbeiter
-- **HTML-Entity-Kodierung** – Umlaute in HTM-Signaturen werden als HTML-Entities gespeichert (z.B. `ä` → `&auml;`)
-- **SMB-Deployment** – Generierte Signaturen direkt auf einen Netzwerk-Share hochladen (alte Ordner werden automatisch bereinigt)
-- **SMB-Verbindungstest** – Integrierter Test-Button zum Prüfen der SMB-Konfiguration
-- **Login** – Admin-Zugangsdaten konfigurierbar über `docker-compose.yml` (kein erzwungener Passwortwechsel)
-- **UTF-8 / Umlaute** – Vollständige Unterstützung von Sonderzeichen (ä, ö, ü, ß, etc.)
-- **Docker-ready** – Docker Image via ghcr.io oder selbst bauen, konfigurierbarer Port
+- **Multi-tenant management** – Multiple companies with individual templates, short names, and SMB settings
+- **Template editor** – HTML, TXT, and RTF templates with CodeMirror editor, live preview, and variable reference
+- **Employee management** – CSV import (semicolon-delimited, UTF-8/CP1252/Latin-1), manual CRUD operations
+- **Global employee overview** – Cross-tenant employee list with search
+- **Signature generation** – Automatic creation of `.htm`, `.txt`, and `.rtf` per employee
+- **HTML entity encoding** – Umlauts in HTM signatures are stored as HTML entities (e.g. `ä` → `&auml;`)
+- **SMB deployment** – Deploy generated signatures directly to a network share (old folders are cleaned up automatically)
+- **SMB connection test** – Built-in test button to verify SMB configuration
+- **Bilingual UI** – English (default) and German, switchable via navbar
+- **Login** – Admin credentials configurable via `docker-compose.yml`
+- **Demo data** – Sample company and employee created on first run
+- **Docker-ready** – Docker image via ghcr.io or self-build, configurable port
 
 ---
 
 ## Installation
 
-### Docker mit ghcr.io (empfohlen)
+### Docker with ghcr.io (recommended)
 
 ```yaml
 # docker-compose.yml
@@ -33,9 +34,9 @@ services:
     container_name: signature-manager
     network_mode: host
     environment:
-      - SECRET_KEY=bitte-aendern-geheimer-schluessel-12345
+      - SECRET_KEY=change-me-to-a-secure-secret-key-12345
       - ADMIN_USER=admin
-      - ADMIN_PASSWORD=MeinSicheresPasswort123
+      - ADMIN_PASSWORD=MySecurePassword123
       - DATABASE_URL=sqlite:////opt/signature-tool/data/signatures.db
       - DATA_DIR=/opt/signature-tool/data
       - GENERATED_DIR=/opt/signature-tool/data/generated
@@ -52,11 +53,11 @@ volumes:
 docker compose up -d
 ```
 
-Die Anwendung ist unter `http://<server-ip>:5010` erreichbar.
+The application is available at `http://<server-ip>:5010`.
 
-> **Hinweis:** `network_mode: host` wird benötigt, damit der Container SMB-Shares im LAN erreichen kann.
+> **Note:** `network_mode: host` is required so the container can reach SMB shares on the local network.
 
-### Docker selbst bauen
+### Build Docker image locally
 
 ```bash
 git clone https://github.com/onlinecrash24/signatur-manager.git
@@ -64,7 +65,7 @@ cd signatur-manager
 docker compose up -d
 ```
 
-### Lokal (Entwicklung)
+### Local development
 
 ```bash
 cd signatur-manager
@@ -82,109 +83,111 @@ python run.py
 
 ---
 
-## Erster Start
+## First Start
 
 | | |
 |---|---|
 | **URL** | `http://<server-ip>:5010` |
-| **Benutzer** | Wert von `ADMIN_USER` (Standard: `admin`) |
-| **Passwort** | Wert von `ADMIN_PASSWORD` (Standard: `password`) |
+| **Username** | Value of `ADMIN_USER` (default: `admin`) |
+| **Password** | Value of `ADMIN_PASSWORD` (default: `password`) |
 
-Die Zugangsdaten werden über die Umgebungsvariablen in der `docker-compose.yml` festgelegt. Ein erzwungener Passwortwechsel findet **nicht** statt.
+Credentials are configured via environment variables in `docker-compose.yml`.
+
+On first start, a demo company (**Northwind Solutions GmbH**) with one sample employee and signature templates is created automatically.
 
 ---
 
-## Dateistruktur
+## File Structure
 
 ```
 signatur-manager/
 ├── .github/workflows/
-│   └── docker-publish.yml          # GitHub Actions: Auto-Build → ghcr.io
-├── Dockerfile                      # Docker-Image Definition
-├── docker-compose.yml              # Docker Compose Konfiguration
-├── entrypoint.sh                   # Gunicorn-Start mit konfigurierbarem Port
-├── requirements.txt                # Python-Abhängigkeiten
-├── run.py                          # Anwendungs-Einstiegspunkt
+│   └── docker-publish.yml          # GitHub Actions: Auto-build → ghcr.io
+├── Dockerfile                      # Docker image definition
+├── docker-compose.yml              # Docker Compose configuration
+├── entrypoint.sh                   # Gunicorn startup with configurable port
+├── requirements.txt                # Python dependencies
+├── run.py                          # Application entry point
 │
 ├── app/
-│   ├── __init__.py                 # Flask App-Factory, Blueprints, DB-Migration
-│   ├── config.py                   # Konfiguration (DB, Pfade, Secret Key)
-│   ├── models.py                   # Datenbank-Modelle (User, Tenant, Employee)
-│   ├── auth.py                     # Login, Logout, Passwortwechsel
-│   ├── tenants.py                  # Mandanten-CRUD, Template-Editor, SMB-Test
-│   ├── signatures.py               # Mitarbeiter, CSV-Import, Generierung, SMB-Deploy
-│   ├── smb_utils.py                # SMB-Verbindung, Test, Upload, Bereinigung
-│   ├── rtf_utils.py                # HTML-zu-RTF Konvertierung
+│   ├── __init__.py                 # Flask app factory, blueprints, DB migration
+│   ├── config.py                   # Configuration (DB, paths, secret key)
+│   ├── models.py                   # Database models (User, Tenant, Employee)
+│   ├── auth.py                     # Login, logout, password change
+│   ├── tenants.py                  # Tenant CRUD, template editor, SMB test
+│   ├── signatures.py               # Employees, CSV import, generation, SMB deploy
+│   ├── smb_utils.py                # SMB connection, test, upload, cleanup
+│   ├── translations.py             # Bilingual i18n (EN/DE)
 │   │
 │   ├── static/
-│   │   ├── css/style.css           # Ergänzende Styles
-│   │   ├── js/editor.js            # CodeMirror, Live-Vorschau
-│   │   ├── sample.csv              # Muster-CSV zum Download
+│   │   ├── css/style.css           # Additional styles
+│   │   ├── js/editor.js            # CodeMirror, live preview
+│   │   ├── sample.csv              # Sample CSV for download
 │   │   └── img/                    # Logos
 │   │
-│   └── templates/                  # Jinja2-Templates (Login, Dashboard, etc.)
+│   └── templates/                  # Jinja2 templates (login, dashboard, etc.)
 │
-└── data/                           # (wird automatisch erstellt, nicht im Repo)
-    ├── signatures.db               # SQLite-Datenbank
-    └── generated/                  # Generierte Signaturen
+└── data/                           # (created automatically, not in repo)
+    ├── signatures.db               # SQLite database
+    └── generated/                  # Generated signatures
 ```
 
 ---
 
-## CSV-Format
+## CSV Format
 
-Die CSV-Datei muss **Semikolon-getrennt** sein. Unterstützte Encodings: UTF-8, UTF-8 mit BOM, Windows-1252, Latin-1.
+The CSV file must be **semicolon-delimited**. Supported encodings: UTF-8, UTF-8 with BOM, Windows-1252, Latin-1.
 
-CSV-Dateien **mit und ohne Kopfzeile** werden automatisch erkannt.
+CSV files **with and without header rows** are detected automatically.
 
 ```csv
 Vorname;Nachname;Titel;Durchwahl;E-Mail Adresse;Optionale Rufnummer;Abteilung
-Jürgen;Müller;Dr.;0441 12345 - 100;juergen.mueller@firma.de;0175 1234567;Geschäftsführung
-Käthe;Schröder;;0441 12345 - 101;kaethe.schroeder@firma.de;;Buchhaltung
+Max;Mustermann;Dr.;+49 40 12345-22;max.mustermann@firma.de;+49 177 12345678;IT
+Erika;Musterfrau;;+49 40 12345-23;erika.musterfrau@firma.de;;Sales
 ```
 
-| Spalte | Pflicht | Beschreibung |
+| Column | Required | Description |
 |---|---|---|
-| Vorname | Ja | Vorname des Mitarbeiters |
-| Nachname | Ja | Nachname des Mitarbeiters |
-| Titel | Nein | z.B. Dr., Dipl.-Ing., Prof. |
-| Durchwahl | Nein | Telefon-Durchwahl |
-| E-Mail Adresse | Ja | Wird als eindeutiger Schlüssel verwendet |
-| Optionale Rufnummer | Nein | z.B. Mobilnummer, Zentrale |
-| Abteilung | Nein | Abteilungsbezeichnung |
+| Vorname | Yes | First name |
+| Nachname | Yes | Last name |
+| Titel | No | e.g. Dr., Dipl.-Ing., Prof. |
+| Durchwahl | No | Direct dial number |
+| E-Mail Adresse | Yes | Used as unique key for updates |
+| Optionale Rufnummer | No | e.g. mobile number |
+| Abteilung | No | Department |
 
-Beim Import werden bestehende Mitarbeiter anhand der E-Mail-Adresse erkannt und aktualisiert.
+Existing employees are matched by email address and updated on re-import.
 
 ---
 
-## Template-Variablen
+## Template Variables
 
-### Mitarbeiter-Variablen
+### Employee Variables
 
-| Variable | Beschreibung |
+| Variable | Description |
 |---|---|
-| `{{vorname}}` | Vorname |
-| `{{nachname}}` | Nachname |
-| `{{titel}}` | Titel (Dr., Dipl.-Ing., etc.) |
-| `{{durchwahl}}` | Telefon-Durchwahl |
-| `{{email}}` | E-Mail-Adresse |
-| `{{optionale_rufnummer}}` | Optionale Rufnummer |
-| `{{abteilung}}` | Abteilung |
+| `{{vorname}}` | First name |
+| `{{nachname}}` | Last name |
+| `{{titel}}` | Title (Dr., Dipl.-Ing., etc.) |
+| `{{durchwahl}}` | Direct dial |
+| `{{email}}` | Email address |
+| `{{optionale_rufnummer}}` | Optional phone number |
+| `{{abteilung}}` | Department |
 
-### Firmen-Variablen (aus Mandant)
+### Company Variables (from tenant)
 
-| Variable | Beschreibung |
+| Variable | Description |
 |---|---|
-| `{{firma}}` | Firmenname |
-| `{{strasse}}` | Straße |
-| `{{plz}}` | Postleitzahl |
-| `{{ort}}` | Ort |
-| `{{telefon}}` | Telefon (Zentrale) |
+| `{{firma}}` | Company name |
+| `{{strasse}}` | Street |
+| `{{plz}}` | ZIP code |
+| `{{ort}}` | City |
+| `{{telefon}}` | Phone (main line) |
 | `{{fax}}` | Fax |
 | `{{website}}` | Website |
-| `{{logo_url}}` | URL zum Firmenlogo |
+| `{{logo_url}}` | Company logo URL |
 
-### Bedingte Blöcke
+### Conditional Blocks
 
 ```html
 {% if titel %}{{titel}} {% endif %}{{vorname}} {{nachname}}
@@ -192,89 +195,90 @@ Beim Import werden bestehende Mitarbeiter anhand der E-Mail-Adresse erkannt und 
 
 ---
 
-## Signatur-Ordnerstruktur (SMB / lokal)
+## Signature Folder Structure (SMB / local)
 
-Generierte Signaturen werden pro Mitarbeiter in einem Ordner abgelegt. Der Ordnername wird aus dem **AD-Benutzernamen** (Teil vor dem `@` der E-Mail-Adresse) und dem **Firmenkürzel** gebildet:
+Generated signatures are stored per employee in a dedicated folder. The folder name is composed of the **AD username** (part before `@` in the email address) and the **company short name**:
 
 ```
-<ad-username>-<Firmenkürzel>/
-├── <ad-username>-<Firmenkürzel>.htm
-├── <ad-username>-<Firmenkürzel>.txt
-└── <ad-username>-<Firmenkürzel>.rtf
+<ad-username>-<ShortName>/
+├── <ad-username>-<ShortName>.htm
+├── <ad-username>-<ShortName>.txt
+└── <ad-username>-<ShortName>.rtf
 ```
 
-**Beispiel:** E-Mail `m.baeumer@eriksen.de`, Firmenkürzel `EBV` → Ordner und Dateien: `m.baeumer-EBV.htm`, `.txt`, `.rtf`
+**Example:** Email `j.bergmann@northwind-solutions.de`, short name `NWS` → folder and files: `j.bergmann-NWS.htm`, `.txt`, `.rtf`
 
-- Umlaute im Ordner-/Dateinamen werden automatisch ersetzt (ä→ae, ö→oe, ü→ue, ß→ss)
-- In der HTM-Signatur werden Umlaute als HTML-Entities kodiert (z.B. `ä` → `&auml;`)
-- Beim Deploy werden **alte Ordner auf dem SMB-Share automatisch gelöscht** bevor die neuen hochgeladen werden
+- Umlauts in folder/file names are replaced automatically (ä→ae, ö→oe, ü→ue, ß→ss)
+- Umlauts in HTM signatures are encoded as HTML entities (e.g. `ä` → `&auml;`)
+- On deploy, **old folders on the SMB share are deleted** before uploading new ones
 
 ---
 
-## SMB-Deployment
+## SMB Deployment
 
-Pro Mandant kann ein SMB-Netzwerkpfad konfiguriert werden:
+Each tenant can be configured with an SMB network path:
 
-- **SMB-Pfad**: `\\server\share\signaturen`
-- **Benutzername**: `DOMAIN\benutzer`
-- **Passwort**: SMB-Passwort
+- **SMB Path**: `\\server\share\signatures`
+- **Username**: `DOMAIN\user`
+- **Password**: SMB password
 
-Der integrierte **Verbindungstest** prüft die Erreichbarkeit und Zugangsdaten direkt im Browser.
+The built-in **connection test** verifies reachability and credentials directly in the browser.
 
-> **Wichtig:** Docker muss mit `network_mode: host` laufen, damit SMB-Shares im LAN erreichbar sind.
+> **Important:** Docker must run with `network_mode: host` so SMB shares on the LAN are reachable.
 
 ---
 
-## Technologie-Stack
+## Technology Stack
 
-| Komponente | Technologie |
+| Component | Technology |
 |---|---|
 | Backend | Python 3.12, Flask 3.0, Gunicorn |
-| Datenbank | SQLite (via Flask-SQLAlchemy) |
+| Database | SQLite (via Flask-SQLAlchemy) |
 | Frontend | Bootstrap 5.3, Font Awesome 6 |
-| Code-Editor | CodeMirror 5 (Monokai Theme) |
+| Code Editor | CodeMirror 5 (Monokai Theme) |
 | Auth | Flask-Login |
 | SMB | smbprotocol / smbclient |
+| i18n | Dict-based (EN/DE) |
 | Container | Docker, GitHub Actions, ghcr.io |
 
 ---
 
-## Umgebungsvariablen
+## Environment Variables
 
-| Variable | Standard | Beschreibung |
+| Variable | Default | Description |
 |---|---|---|
-| `SECRET_KEY` | `change-me-in-production` | Flask Secret Key (unbedingt ändern!) |
-| `ADMIN_USER` | `admin` | Admin-Benutzername |
-| `ADMIN_PASSWORD` | `password` | Admin-Passwort |
-| `DATABASE_URL` | `sqlite:///...signatures.db` | Datenbank-Verbindung |
-| `DATA_DIR` | `/opt/signature-tool/data` | Datenverzeichnis |
-| `GENERATED_DIR` | `/opt/signature-tool/data/generated` | Verzeichnis für generierte Signaturen |
-| `UPLOAD_FOLDER` | `/opt/signature-tool/data/uploads` | Upload-Verzeichnis |
-| `LISTEN_PORT` | `5010` | Port, auf dem die Anwendung lauscht |
+| `SECRET_KEY` | `change-me-in-production` | Flask secret key (must be changed!) |
+| `ADMIN_USER` | `admin` | Admin username |
+| `ADMIN_PASSWORD` | `password` | Admin password |
+| `DATABASE_URL` | `sqlite:///...signatures.db` | Database connection |
+| `DATA_DIR` | `/opt/signature-tool/data` | Data directory |
+| `GENERATED_DIR` | `/opt/signature-tool/data/generated` | Directory for generated signatures |
+| `UPLOAD_FOLDER` | `/opt/signature-tool/data/uploads` | Upload directory |
+| `LISTEN_PORT` | `5010` | Port the application listens on |
 
 ---
 
-## Docker-Befehle
+## Docker Commands
 
 ```bash
-# Mit ghcr.io Image starten
+# Start with ghcr.io image
 docker compose up -d
 
-# Image aktualisieren
+# Update image
 docker compose pull && docker compose up -d
 
-# Selbst bauen (nach Änderungen)
+# Build locally (after changes)
 docker compose build --no-cache && docker compose up -d
 
-# Logs anzeigen
+# View logs
 docker logs -f signature-manager
 
-# Container stoppen
+# Stop container
 docker compose down
 ```
 
 ---
 
-## Lizenz
+## License
 
-Internes Tool – nicht zur Weitergabe bestimmt.
+MIT License

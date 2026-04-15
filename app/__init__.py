@@ -197,7 +197,7 @@ def _create_demo_data():
   </tr>
   <tr>
     <td colspan="2" style="padding-top: 10px; font-size: 9px; color: #999999; line-height: 1.4;">
-      {{firma}} | Managing Director: John Miller | Register Court: District Court Oldenburg HRB 12345
+      {{firma}} | Managing Director: John Miller | Register Court: District Court Hamburg HRB 12345
     </td>
   </tr>
 </table>"""
@@ -236,17 +236,17 @@ def _create_demo_data():
 {% endif %}E-Mail: {{email}}\par
 {% if website %}Web: {{website}}\par
 {% endif %}\par
-\fs16\cf3 {{firma}} | Managing Director: John Miller | Register Court: District Court Oldenburg HRB 12345\par
+\fs16\cf3 {{firma}} | Managing Director: John Miller | Register Court: District Court Hamburg HRB 12345\par
 }"""
 
     tenant = Tenant(
         name='Northwind Solutions GmbH',
         short_name='NWS',
-        street='Alexanderstr. 42',
-        zip_code='26121',
-        city='Oldenburg',
-        phone='+49 441 98765-0',
-        fax='+49 441 98765-99',
+        street='Jungfernstieg 42',
+        zip_code='20354',
+        city='Hamburg',
+        phone='+49 40 12345-0',
+        fax='+49 40 12345-99',
         website='https://www.northwind-solutions.de',
         logo_url='https://via.placeholder.com/150x60?text=Northwind',
         html_template=demo_html,
@@ -259,11 +259,11 @@ def _create_demo_data():
     employee = Employee(
         tenant_id=tenant.id,
         vorname='Julia',
-        nachname='Eriksen',
+        nachname='Bergmann',
         titel='',
-        durchwahl='+49 441 98765-42',
-        email='j.eriksen@northwind-solutions.de',
-        optionale_rufnummer='+49 175 9876543',
+        durchwahl='+49 40 12345-67',
+        email='j.bergmann@northwind-solutions.de',
+        optionale_rufnummer='+49 177 12345678',
         abteilung='IT Department',
     )
     db.session.add(employee)
