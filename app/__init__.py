@@ -51,7 +51,7 @@ def create_app():
 
     @app.context_processor
     def inject_translation():
-        lang = session.get('lang', 'en')
+        lang = session.get('lang', app.config.get('DEFAULT_LANG', 'en'))
         strings = TRANSLATIONS.get(lang, TRANSLATIONS['en'])
         fallback = TRANSLATIONS['en']
 

@@ -42,6 +42,7 @@ services:
       - GENERATED_DIR=/opt/signature-tool/data/generated
       - UPLOAD_FOLDER=/opt/signature-tool/data/uploads
       - LISTEN_PORT=5010
+      - DEFAULT_LANG=en
     volumes:
       - signature-data:/opt/signature-tool/data
     restart: unless-stopped
@@ -255,6 +256,7 @@ The built-in **connection test** verifies reachability and credentials directly 
 | `GENERATED_DIR` | `/opt/signature-tool/data/generated` | Directory for generated signatures |
 | `UPLOAD_FOLDER` | `/opt/signature-tool/data/uploads` | Upload directory |
 | `LISTEN_PORT` | `5010` | Port the application listens on |
+| `DEFAULT_LANG` | `en` | Default UI language (`en` or `de`) |
 
 ---
 

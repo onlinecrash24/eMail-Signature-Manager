@@ -512,7 +512,9 @@ TRANSLATIONS = {
 
 def t(key, **kwargs):
     """Translate a key using the current session language."""
-    lang = session.get('lang', 'en')
+    from flask import current_app
+    default_lang = current_app.config.get('DEFAULT_LANG', 'en') if current_app else 'en'
+    lang = session.get('lang', default_lang)
     text = TRANSLATIONS.get(lang, TRANSLATIONS['en']).get(key)
     if text is None:
         text = TRANSLATIONS['en'].get(key, key)
