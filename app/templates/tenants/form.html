@@ -1,15 +1,15 @@
 {% extends "base.html" %}
 
-{% block title %}{{ 'Mandant bearbeiten' if action == 'edit' else 'Mandant anlegen' }} - Signatur Manager{% endblock %}
+{% block title %}{{ t('tenants.edit') if action == 'edit' else t('tenants.new') }} - {{ t('app.name') }}{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>
         <i class="fas fa-{{ 'edit' if action == 'edit' else 'plus-circle' }}"></i>
-        {{ 'Mandant bearbeiten' if action == 'edit' else 'Mandant anlegen' }}
+        {{ t('tenants.edit') if action == 'edit' else t('tenants.new') }}
     </h2>
     <a href="{{ url_for('tenants.list_tenants') }}" class="btn btn-outline-secondary">
-        <i class="fas fa-arrow-left"></i> Zurück zur Liste
+        <i class="fas fa-arrow-left"></i> {{ t('common.back_to_list') }}
     </a>
 </div>
 
@@ -19,52 +19,52 @@
         <div class="col-lg-8">
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="fas fa-building"></i> Firmendaten</h5>
+                    <h5 class="mb-0"><i class="fas fa-building"></i> {{ t('tenants.company_data') }}</h5>
                 </div>
                 <div class="card-body">
                     <div class="row mb-3">
                         <div class="col-md-8">
-                            <label for="name" class="form-label">Firmenname <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="name" name="name" required value="{{ tenant.name or '' }}" placeholder="Firmenname eingeben">
+                            <label for="name" class="form-label">{{ t('tenants.company_name') }} <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="name" name="name" required value="{{ tenant.name or '' }}" placeholder="{{ t('tenants.company_name') }}">
                         </div>
                         <div class="col-md-4">
-                            <label for="short_name" class="form-label">Firmenkürzel <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="short_name" name="short_name" required value="{{ tenant.short_name or '' }}" placeholder="z.B. TFG" pattern="[^\s]+" title="Keine Leerzeichen erlaubt">
-                            <div class="form-text">Ohne Leerzeichen. Wird für Ordnernamen verwendet.</div>
+                            <label for="short_name" class="form-label">{{ t('tenants.short_name') }} <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="short_name" name="short_name" required value="{{ tenant.short_name or '' }}" placeholder="{{ t('tenants.short_name_ph') }}" pattern="[^\s]+" title="{{ t('tenants.short_name_hint') }}">
+                            <div class="form-text">{{ t('tenants.short_name_hint') }}</div>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for="street" class="form-label">Straße</label>
-                        <input type="text" class="form-control" id="street" name="street" value="{{ tenant.street or '' }}" placeholder="Straße und Hausnummer">
+                        <label for="street" class="form-label">{{ t('tenants.street') }}</label>
+                        <input type="text" class="form-control" id="street" name="street" value="{{ tenant.street or '' }}" placeholder="{{ t('tenants.street_ph') }}">
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-4">
-                            <label for="zip_code" class="form-label">PLZ</label>
-                            <input type="text" class="form-control" id="zip_code" name="zip_code" value="{{ tenant.zip_code or '' }}" placeholder="PLZ">
+                            <label for="zip_code" class="form-label">{{ t('tenants.zip') }}</label>
+                            <input type="text" class="form-control" id="zip_code" name="zip_code" value="{{ tenant.zip_code or '' }}" placeholder="{{ t('tenants.zip_ph') }}">
                         </div>
                         <div class="col-md-8">
-                            <label for="city" class="form-label">Ort</label>
-                            <input type="text" class="form-control" id="city" name="city" value="{{ tenant.city or '' }}" placeholder="Ort">
+                            <label for="city" class="form-label">{{ t('tenants.city_label') }}</label>
+                            <input type="text" class="form-control" id="city" name="city" value="{{ tenant.city or '' }}" placeholder="{{ t('tenants.city_ph') }}">
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label for="phone" class="form-label">Telefon</label>
-                            <input type="text" class="form-control" id="phone" name="phone" value="{{ tenant.phone or '' }}" placeholder="z.B. 040 12345-0">
+                            <label for="phone" class="form-label">{{ t('tenants.phone') }}</label>
+                            <input type="text" class="form-control" id="phone" name="phone" value="{{ tenant.phone or '' }}" placeholder="{{ t('tenants.phone_ph') }}">
                         </div>
                         <div class="col-md-6">
-                            <label for="fax" class="form-label">Fax</label>
-                            <input type="text" class="form-control" id="fax" name="fax" value="{{ tenant.fax or '' }}" placeholder="z.B. 040 12345-99">
+                            <label for="fax" class="form-label">{{ t('tenants.fax') }}</label>
+                            <input type="text" class="form-control" id="fax" name="fax" value="{{ tenant.fax or '' }}" placeholder="{{ t('tenants.fax_ph') }}">
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for="website" class="form-label">Website</label>
-                        <input type="text" class="form-control" id="website" name="website" value="{{ tenant.website or '' }}" placeholder="z.B. https://www.firma.de">
+                        <label for="website" class="form-label">{{ t('tenants.website') }}</label>
+                        <input type="text" class="form-control" id="website" name="website" value="{{ tenant.website or '' }}" placeholder="{{ t('tenants.website_ph') }}">
                     </div>
                     <div class="mb-0">
-                        <label for="logo_url" class="form-label">Logo URL</label>
-                        <input type="text" class="form-control" id="logo_url" name="logo_url" value="{{ tenant.logo_url or '' }}" placeholder="z.B. https://www.firma.de/logo.png">
-                        <div class="form-text">Vollständige URL zum Firmenlogo (wird in der Signatur verwendet).</div>
+                        <label for="logo_url" class="form-label">{{ t('tenants.logo_url') }}</label>
+                        <input type="text" class="form-control" id="logo_url" name="logo_url" value="{{ tenant.logo_url or '' }}" placeholder="{{ t('tenants.logo_url_ph') }}">
+                        <div class="form-text">{{ t('tenants.logo_url_hint') }}</div>
                     </div>
                 </div>
             </div>
@@ -74,25 +74,25 @@
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="fas fa-network-wired"></i> SMB Einstellungen</h5>
+                    <h5 class="mb-0"><i class="fas fa-network-wired"></i> {{ t('tenants.smb_title') }}</h5>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <label for="smb_path" class="form-label">SMB Pfad</label>
-                        <input type="text" class="form-control" id="smb_path" name="smb_path" value="{{ tenant.smb_path or '' }}" placeholder="\\server\share\pfad">
-                        <div class="form-text">Netzwerkpfad für den Signatur-Export.</div>
+                        <label for="smb_path" class="form-label">{{ t('tenants.smb_path') }}</label>
+                        <input type="text" class="form-control" id="smb_path" name="smb_path" value="{{ tenant.smb_path or '' }}" placeholder="{{ t('tenants.smb_path_ph') }}">
+                        <div class="form-text">{{ t('tenants.smb_path_hint') }}</div>
                     </div>
                     <div class="mb-3">
-                        <label for="smb_username" class="form-label">SMB Benutzername</label>
-                        <input type="text" class="form-control" id="smb_username" name="smb_username" value="{{ tenant.smb_username or '' }}" placeholder="DOMAIN\benutzer">
+                        <label for="smb_username" class="form-label">{{ t('tenants.smb_user') }}</label>
+                        <input type="text" class="form-control" id="smb_username" name="smb_username" value="{{ tenant.smb_username or '' }}" placeholder="{{ t('tenants.smb_user_ph') }}">
                     </div>
                     <div class="mb-3">
-                        <label for="smb_password" class="form-label">SMB Passwort</label>
-                        <input type="password" class="form-control" id="smb_password" name="smb_password" value="{{ tenant.smb_password or '' }}" placeholder="Passwort">
+                        <label for="smb_password" class="form-label">{{ t('tenants.smb_password') }}</label>
+                        <input type="password" class="form-control" id="smb_password" name="smb_password" value="{{ tenant.smb_password or '' }}" placeholder="{{ t('tenants.smb_password_ph') }}">
                     </div>
                     <div class="d-grid">
                         <button type="button" class="btn btn-outline-info" id="testSmbBtn">
-                            <i class="fas fa-plug"></i> Verbindung testen
+                            <i class="fas fa-plug"></i> {{ t('tenants.smb_test') }}
                         </button>
                     </div>
                     <div id="smbTestResult" class="mt-3" style="display:none;"></div>
@@ -102,7 +102,7 @@
             {% if tenant and tenant.logo_url %}
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="fas fa-image"></i> Logo-Vorschau</h5>
+                    <h5 class="mb-0"><i class="fas fa-image"></i> {{ t('tenants.logo_preview') }}</h5>
                 </div>
                 <div class="card-body text-center">
                     <img src="{{ tenant.logo_url }}" alt="Logo" class="img-fluid" style="max-height: 100px;" onerror="this.parentElement.innerHTML='<span class=\'text-muted\'>Logo konnte nicht geladen werden.</span>';">
@@ -115,10 +115,10 @@
     <!-- Buttons -->
     <div class="d-flex gap-2 mb-4">
         <button type="submit" class="btn btn-primary btn-lg">
-            <i class="fas fa-save"></i> Speichern
+            <i class="fas fa-save"></i> {{ t('common.save') }}
         </button>
         <a href="{{ url_for('tenants.list_tenants') }}" class="btn btn-outline-secondary btn-lg">
-            <i class="fas fa-times"></i> Abbrechen
+            <i class="fas fa-times"></i> {{ t('common.cancel') }}
         </a>
     </div>
 </form>
@@ -130,7 +130,7 @@ document.getElementById('testSmbBtn').addEventListener('click', function() {
     var resultDiv = document.getElementById('smbTestResult');
     var btn = this;
     btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Teste...';
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> {{ t('tenants.smb_testing') }}';
     resultDiv.style.display = 'none';
 
     var data = {
@@ -164,7 +164,7 @@ document.getElementById('testSmbBtn').addEventListener('click', function() {
     })
     .finally(function() {
         btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-plug"></i> Verbindung testen';
+        btn.innerHTML = '<i class="fas fa-plug"></i> {{ t('tenants.smb_test') }}';
     });
 });
 </script>

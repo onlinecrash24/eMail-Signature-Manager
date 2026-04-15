@@ -1,10 +1,11 @@
 from functools import wraps
 
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask import Blueprint, render_template, redirect, url_for, request, flash, session
 from flask_login import login_user, logout_user, login_required, current_user
 
 from app import db
 from app.models import User
+from app.translations import t as translate
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -15,10 +16,17 @@ def admin_required(f):
     @login_required
     def decorated_function(*args, **kwargs):
         if not current_user.is_admin:
-            flash('Zugriff verweigert. Administrator-Rechte erforderlich.', 'danger')
+            flash(translate('flash.access_denied'), 'danger')
             return redirect(url_for('dashboard'))
         return f(*args, **kwargs)
     return decorated_function
+
+
+@auth_bp.route('/set-language/<lang>')
+def set_language(lang):
+    if lang in ('en', 'de'):
+        session['lang'] = lang
+    return redirect(request.referrer or url_for('dashboard'))
 
 
 @auth_bp.before_app_request
@@ -48,7 +56,7 @@ def login():
             next_page = request.args.get('next')
             return redirect(next_page or url_for('dashboard'))
 
-        flash('Ungültiger Benutzername oder Passwort.', 'danger')
+        flash(translate('flash.invalid_credentials'), 'danger')
 
     return render_template('login.html')
 
@@ -57,7 +65,7 @@ def login():
 @login_required
 def logout():
     logout_user()
-    flash('Sie wurden abgemeldet.', 'info')
+    flash(translate('flash.logged_out'), 'info')
     return redirect(url_for('auth.login'))
 
 
@@ -70,16 +78,16 @@ def change_password():
         confirm_password = request.form.get('confirm_password', '')
 
         if not current_user.check_password(current_password):
-            flash('Aktuelles Passwort ist falsch.', 'danger')
+            flash(translate('flash.current_pw_wrong'), 'danger')
         elif len(new_password) < 8:
-            flash('Das neue Passwort muss mindestens 8 Zeichen lang sein.', 'danger')
+            flash(translate('flash.pw_too_short'), 'danger')
         elif new_password != confirm_password:
-            flash('Die Passwörter stimmen nicht überein.', 'danger')
+            flash(translate('flash.pw_mismatch'), 'danger')
         else:
             current_user.set_password(new_password)
             current_user.must_change_password = False
             db.session.commit()
-            flash('Passwort erfolgreich geändert.', 'success')
+            flash(translate('flash.pw_changed'), 'success')
             return redirect(url_for('dashboard'))
 
     return render_template('change_password.html')
@@ -100,12 +108,12 @@ def add_user():
     is_admin = request.form.get('is_admin') == 'on'
 
     if not username or not password:
-        flash('Benutzername und Passwort sind erforderlich.', 'danger')
+        flash(translate('flash.user_pw_required'), 'danger')
         return redirect(url_for('auth.users'))
 
     existing = db.session.query(User).filter_by(username=username).first()
     if existing:
-        flash(f'Benutzer "{username}" existiert bereits.', 'danger')
+        flash(translate('flash.user_exists', name=username), 'danger')
         return redirect(url_for('auth.users'))
 
     user = User(
@@ -117,7 +125,7 @@ def add_user():
     db.session.add(user)
     db.session.commit()
 
-    flash(f'Benutzer "{username}" wurde erstellt.', 'success')
+    flash(translate('flash.user_created', name=username), 'success')
     return redirect(url_for('auth.users'))
 
 
@@ -126,18 +134,18 @@ def add_user():
 def delete_user(user_id):
     user = db.session.get(User, user_id)
     if not user:
-        flash('Benutzer nicht gefunden.', 'danger')
+        flash(translate('flash.user_not_found'), 'danger')
         return redirect(url_for('auth.users'))
 
     if user.id == current_user.id:
-        flash('Sie können sich nicht selbst löschen.', 'danger')
+        flash(translate('flash.cant_delete_self'), 'danger')
         return redirect(url_for('auth.users'))
 
     username = user.username
     db.session.delete(user)
     db.session.commit()
 
-    flash(f'Benutzer "{username}" wurde gelöscht.', 'success')
+    flash(translate('flash.user_deleted', name=username), 'success')
     return redirect(url_for('auth.users'))
 
 
@@ -146,12 +154,12 @@ def delete_user(user_id):
 def reset_password(user_id):
     user = db.session.get(User, user_id)
     if not user:
-        flash('Benutzer nicht gefunden.', 'danger')
+        flash(translate('flash.user_not_found'), 'danger')
         return redirect(url_for('auth.users'))
 
     user.set_password('password')
     user.must_change_password = True
     db.session.commit()
 
-    flash(f'Passwort für "{user.username}" wurde zurückgesetzt.', 'success')
+    flash(translate('flash.pw_reset', name=user.username), 'success')
     return redirect(url_for('auth.users'))

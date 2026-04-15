@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}Mandanten - Signatur Manager{% endblock %}
+{% block title %}{{ t('tenants.title') }} - {{ t('app.name') }}{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="fas fa-building"></i> Mandanten</h2>
+    <h2><i class="fas fa-building"></i> {{ t('tenants.title') }}</h2>
     <a href="{{ url_for('tenants.add_tenant') }}" class="btn btn-primary">
-        <i class="fas fa-plus-circle"></i> Neuen Mandanten anlegen
+        <i class="fas fa-plus-circle"></i> {{ t('tenants.new') }}
     </a>
 </div>
 
@@ -17,10 +17,10 @@
             <table class="table table-hover mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th>Name</th>
-                        <th>Ort</th>
-                        <th>Mitarbeiter</th>
-                        <th class="text-end">Aktionen</th>
+                        <th>{{ t('common.name') }}</th>
+                        <th>{{ t('common.city') }}</th>
+                        <th>{{ t('emp.title') }}</th>
+                        <th class="text-end">{{ t('common.actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -36,23 +36,23 @@
                         </td>
                         <td class="text-end">
                             <div class="btn-group btn-group-sm">
-                                <a href="{{ url_for('tenants.edit_tenant', tenant_id=tenant.id) }}" class="btn btn-outline-secondary" title="Bearbeiten">
-                                    <i class="fas fa-edit"></i> Bearbeiten
+                                <a href="{{ url_for('tenants.edit_tenant', tenant_id=tenant.id) }}" class="btn btn-outline-secondary" title="{{ t('common.edit') }}">
+                                    <i class="fas fa-edit"></i> {{ t('common.edit') }}
                                 </a>
-                                <a href="{{ url_for('tenants.templates', tenant_id=tenant.id) }}" class="btn btn-outline-info" title="Vorlagen">
-                                    <i class="fas fa-code"></i> Vorlagen
+                                <a href="{{ url_for('tenants.templates', tenant_id=tenant.id) }}" class="btn btn-outline-info" title="{{ t('tenants.templates') }}">
+                                    <i class="fas fa-code"></i> {{ t('tenants.templates') }}
                                 </a>
-                                <a href="{{ url_for('signatures.employees', tenant_id=tenant.id) }}" class="btn btn-outline-primary" title="Mitarbeiter">
-                                    <i class="fas fa-users"></i> Mitarbeiter
+                                <a href="{{ url_for('signatures.employees', tenant_id=tenant.id) }}" class="btn btn-outline-primary" title="{{ t('emp.title') }}">
+                                    <i class="fas fa-users"></i> {{ t('emp.title') }}
                                 </a>
                                 <form method="POST" action="{{ url_for('signatures.generate_signatures', tenant_id=tenant.id) }}" class="d-inline">
-                                    <button type="submit" class="btn btn-outline-success" title="Signaturen generieren">
-                                        <i class="fas fa-cogs"></i> Generieren
+                                    <button type="submit" class="btn btn-outline-success" title="{{ t('tenants.generate') }}">
+                                        <i class="fas fa-cogs"></i> {{ t('tenants.generate') }}
                                     </button>
                                 </form>
                             </div>
-                            <form method="POST" action="{{ url_for('tenants.delete_tenant', tenant_id=tenant.id) }}" class="d-inline" onsubmit="return confirm('Mandant {{ tenant.name }} wirklich löschen? Alle Mitarbeiterdaten gehen verloren!');">
-                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Löschen">
+                            <form method="POST" action="{{ url_for('tenants.delete_tenant', tenant_id=tenant.id) }}" class="d-inline" onsubmit="return confirm('{{ t('tenants.confirm_delete') }}');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ t('common.delete') }}">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>
@@ -65,9 +65,9 @@
         {% else %}
         <div class="text-center py-5 text-muted">
             <i class="fas fa-inbox fa-3x mb-3"></i>
-            <p class="mb-3">Noch keine Mandanten angelegt.</p>
+            <p class="mb-3">{{ t('tenants.no_tenants') }}</p>
             <a href="{{ url_for('tenants.add_tenant') }}" class="btn btn-primary">
-                <i class="fas fa-plus-circle"></i> Ersten Mandanten anlegen
+                <i class="fas fa-plus-circle"></i> {{ t('tenants.create_first') }}
             </a>
         </div>
         {% endif %}

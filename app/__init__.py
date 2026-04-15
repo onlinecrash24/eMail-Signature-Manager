@@ -1,13 +1,13 @@
 import os
 
-from flask import Flask, redirect, url_for, render_template
+from flask import Flask, redirect, url_for, render_template, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user
 
 db = SQLAlchemy()
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
-login_manager.login_message = 'Bitte melden Sie sich an.'
+login_manager.login_message = ''
 
 
 def create_app():
@@ -46,11 +46,29 @@ def create_app():
     app.register_blueprint(tenants_bp, url_prefix='/tenants')
     app.register_blueprint(signatures_bp, url_prefix='/signatures')
 
-    # Create tables, run migrations, and create default admin
+    # Translation context processor
+    from app.translations import TRANSLATIONS
+
+    @app.context_processor
+    def inject_translation():
+        lang = session.get('lang', 'en')
+        strings = TRANSLATIONS.get(lang, TRANSLATIONS['en'])
+        fallback = TRANSLATIONS['en']
+
+        def t(key, **kwargs):
+            text = strings.get(key, fallback.get(key, key))
+            if kwargs:
+                text = text.format(**kwargs)
+            return text
+
+        return {'t': t, 'current_lang': lang}
+
+    # Create tables, run migrations, create default admin and demo data
     with app.app_context():
         db.create_all()
         _run_migrations()
         _create_default_admin()
+        _create_demo_data()
 
     @app.route('/')
     def index():
@@ -129,3 +147,124 @@ def _create_default_admin():
         admin.set_password(admin_pass)
         db.session.add(admin)
         db.session.commit()
+
+
+def _create_demo_data():
+    """Create a demo tenant with one employee and sample templates on first run."""
+    from app.models import Tenant, Employee
+
+    # Only create demo data if no tenants exist yet
+    if db.session.query(Tenant).count() > 0:
+        return
+
+    demo_html = r"""<table cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: #333333;">
+  <tr>
+    <td style="padding-right: 15px; border-right: 2px solid #0056b3; vertical-align: top;">
+      {% if logo_url %}<img src="{{logo_url}}" alt="{{firma}}" style="max-width: 150px; max-height: 80px;" />{% endif %}
+    </td>
+    <td style="padding-left: 15px; vertical-align: top;">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td style="font-size: 16px; font-weight: bold; color: #0056b3; padding-bottom: 2px;">
+            {% if titel %}{{titel}} {% endif %}{{vorname}} {{nachname}}
+          </td>
+        </tr>
+        {% if abteilung %}
+        <tr>
+          <td style="font-size: 12px; color: #666666; padding-bottom: 8px;">
+            {{abteilung}}
+          </td>
+        </tr>
+        {% endif %}
+        <tr>
+          <td style="font-size: 14px; font-weight: bold; color: #333333; padding-bottom: 6px;">
+            {{firma}}
+          </td>
+        </tr>
+        <tr>
+          <td style="font-size: 12px; color: #555555; line-height: 1.6;">
+            {{strasse}}<br />
+            {{plz}} {{ort}}<br />
+            {% if telefon %}Tel: {{telefon}}{% endif %}{% if durchwahl %} | Direct: {{durchwahl}}{% endif %}<br />
+            {% if optionale_rufnummer %}Mobile: {{optionale_rufnummer}}<br />{% endif %}
+            {% if fax %}Fax: {{fax}}<br />{% endif %}
+            E-Mail: <a href="mailto:{{email}}" style="color: #0056b3; text-decoration: none;">{{email}}</a><br />
+            {% if website %}Web: <a href="{{website}}" style="color: #0056b3; text-decoration: none;">{{website}}</a>{% endif %}
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" style="padding-top: 10px; font-size: 9px; color: #999999; line-height: 1.4;">
+      {{firma}} | Managing Director: John Miller | Register Court: District Court Oldenburg HRB 12345
+    </td>
+  </tr>
+</table>"""
+
+    demo_txt = """--
+{% if titel %}{{titel}} {% endif %}{{vorname}} {{nachname}}
+{% if abteilung %}{{abteilung}}
+{% endif %}
+{{firma}}
+{{strasse}}
+{{plz}} {{ort}}
+
+{% if telefon %}Phone:    {{telefon}}
+{% endif %}{% if durchwahl %}Direct:   {{durchwahl}}
+{% endif %}{% if optionale_rufnummer %}Mobile:   {{optionale_rufnummer}}
+{% endif %}{% if fax %}Fax:      {{fax}}
+{% endif %}E-Mail:   {{email}}
+{% if website %}Web:      {{website}}
+{% endif %}"""
+
+    demo_rtf = r"""{\rtf1\ansi\ansicpg1252\deff0
+{\fonttbl{\f0\fswiss\fcharset0 Arial;}}
+{\colortbl;\red0\green86\blue179;\red51\green51\blue51;\red102\green102\blue102;}
+\viewkind4\uc1
+\pard\f0\fs28\cf1\b {% if titel %}{{titel}} {% endif %}{{vorname}} {{nachname}}\b0\fs20\cf2\par
+{% if abteilung %}\cf3\fs20 {{abteilung}}\cf2\par
+{% endif %}\par
+\b {{firma}}\b0\par
+{{strasse}}\par
+{{plz}} {{ort}}\par
+\par
+{% if telefon %}Phone: {{telefon}}\par
+{% endif %}{% if durchwahl %}Direct: {{durchwahl}}\par
+{% endif %}{% if optionale_rufnummer %}Mobile: {{optionale_rufnummer}}\par
+{% endif %}{% if fax %}Fax: {{fax}}\par
+{% endif %}E-Mail: {{email}}\par
+{% if website %}Web: {{website}}\par
+{% endif %}\par
+\fs16\cf3 {{firma}} | Managing Director: John Miller | Register Court: District Court Oldenburg HRB 12345\par
+}"""
+
+    tenant = Tenant(
+        name='Northwind Solutions GmbH',
+        short_name='NWS',
+        street='Alexanderstr. 42',
+        zip_code='26121',
+        city='Oldenburg',
+        phone='+49 441 98765-0',
+        fax='+49 441 98765-99',
+        website='https://www.northwind-solutions.de',
+        logo_url='https://via.placeholder.com/150x60?text=Northwind',
+        html_template=demo_html,
+        txt_template=demo_txt,
+        rtf_template=demo_rtf,
+    )
+    db.session.add(tenant)
+    db.session.flush()  # get tenant.id
+
+    employee = Employee(
+        tenant_id=tenant.id,
+        vorname='Julia',
+        nachname='Eriksen',
+        titel='',
+        durchwahl='+49 441 98765-42',
+        email='j.eriksen@northwind-solutions.de',
+        optionale_rufnummer='+49 175 9876543',
+        abteilung='IT Department',
+    )
+    db.session.add(employee)
+    db.session.commit()

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Vorlagen bearbeiten - {{ tenant.name }} - Signatur Manager{% endblock %}
+{% block title %}{{ t('editor.title') }} - {{ tenant.name }} - {{ t('app.name') }}{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
@@ -75,15 +75,15 @@
 <!-- Header -->
 <div class="d-flex justify-content-between align-items-center mb-3">
     <div>
-        <h2 class="mb-0"><i class="fas fa-code"></i> Vorlagen bearbeiten</h2>
+        <h2 class="mb-0"><i class="fas fa-code"></i> {{ t('editor.title') }}</h2>
         <small class="text-muted">{{ tenant.name }}</small>
     </div>
     <div class="d-flex gap-2">
         <button type="button" class="btn btn-outline-info" data-bs-toggle="collapse" data-bs-target="#variablePanel">
-            <i class="fas fa-tags"></i> Variablen
+            <i class="fas fa-tags"></i> {{ t('editor.variables') }}
         </button>
         <a href="{{ url_for('tenants.list_tenants') }}" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left"></i> Zurück
+            <i class="fas fa-arrow-left"></i> {{ t('editor.back') }}
         </a>
     </div>
 </div>
@@ -92,108 +92,108 @@
 <div class="collapse mb-3" id="variablePanel">
     <div class="card border-0 shadow-sm">
         <div class="card-header bg-white d-flex justify-content-between align-items-center">
-            <h6 class="mb-0"><i class="fas fa-tags"></i> Verfügbare Variablen</h6>
-            <small class="text-muted">Klicken Sie auf eine Variable, um sie in die Zwischenablage zu kopieren</small>
+            <h6 class="mb-0"><i class="fas fa-tags"></i> {{ t('editor.available_vars') }}</h6>
+            <small class="text-muted">{{ t('editor.var_click_hint') }}</small>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-sm table-hover var-table mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th>Variable</th>
-                            <th>Beschreibung</th>
-                            <th>Beispiel</th>
+                            <th>{{ t('editor.variable') }}</th>
+                            <th>{{ t('editor.description') }}</th>
+                            <th>{{ t('editor.example') }}</th>
                             <th></th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td><code>{% raw %}{{vorname}}{% endraw %}</code></td>
-                            <td>Vorname</td>
+                            <td>{{ t('var.vorname') }}</td>
                             <td class="text-muted">Max</td>
                             <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{vorname}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
                         </tr>
                         <tr>
                             <td><code>{% raw %}{{nachname}}{% endraw %}</code></td>
-                            <td>Nachname</td>
+                            <td>{{ t('var.nachname') }}</td>
                             <td class="text-muted">Mustermann</td>
                             <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{nachname}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
                         </tr>
                         <tr>
                             <td><code>{% raw %}{{titel}}{% endraw %}</code></td>
-                            <td>Titel</td>
+                            <td>{{ t('var.titel') }}</td>
                             <td class="text-muted">Dr.</td>
                             <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{titel}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
                         </tr>
                         <tr>
                             <td><code>{% raw %}{{durchwahl}}{% endraw %}</code></td>
-                            <td>Durchwahl</td>
+                            <td>{{ t('var.durchwahl') }}</td>
                             <td class="text-muted">0441 12345 - 422</td>
                             <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{durchwahl}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
                         </tr>
                         <tr>
                             <td><code>{% raw %}{{email}}{% endraw %}</code></td>
-                            <td>E-Mail Adresse</td>
+                            <td>{{ t('var.email') }}</td>
                             <td class="text-muted">max@firma.de</td>
                             <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{email}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
                         </tr>
                         <tr>
                             <td><code>{% raw %}{{optionale_rufnummer}}{% endraw %}</code></td>
-                            <td>Optionale Rufnummer</td>
+                            <td>{{ t('var.optionale_rufnummer') }}</td>
                             <td class="text-muted">0175 1234567</td>
                             <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{optionale_rufnummer}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
                         </tr>
                         <tr>
                             <td><code>{% raw %}{{abteilung}}{% endraw %}</code></td>
-                            <td>Abteilung</td>
+                            <td>{{ t('var.abteilung') }}</td>
                             <td class="text-muted">IT</td>
                             <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{abteilung}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
                         </tr>
                         <tr>
                             <td><code>{% raw %}{{firma}}{% endraw %}</code></td>
-                            <td>Firmenname</td>
+                            <td>{{ t('var.firma') }}</td>
                             <td class="text-muted">{{ tenant.name }}</td>
                             <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{firma}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
                         </tr>
                         <tr>
                             <td><code>{% raw %}{{strasse}}{% endraw %}</code></td>
-                            <td>Straße</td>
+                            <td>{{ t('var.strasse') }}</td>
                             <td class="text-muted">{{ tenant.street or '' }}</td>
                             <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{strasse}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
                         </tr>
                         <tr>
                             <td><code>{% raw %}{{plz}}{% endraw %}</code></td>
-                            <td>PLZ</td>
+                            <td>{{ t('var.plz') }}</td>
                             <td class="text-muted">{{ tenant.zip_code or '' }}</td>
                             <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{plz}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
                         </tr>
                         <tr>
                             <td><code>{% raw %}{{ort}}{% endraw %}</code></td>
-                            <td>Ort</td>
+                            <td>{{ t('var.ort') }}</td>
                             <td class="text-muted">{{ tenant.city or '' }}</td>
                             <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{ort}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
                         </tr>
                         <tr>
                             <td><code>{% raw %}{{telefon}}{% endraw %}</code></td>
-                            <td>Telefon</td>
+                            <td>{{ t('var.telefon') }}</td>
                             <td class="text-muted">{{ tenant.phone or '' }}</td>
                             <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{telefon}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
                         </tr>
                         <tr>
                             <td><code>{% raw %}{{fax}}{% endraw %}</code></td>
-                            <td>Fax</td>
+                            <td>{{ t('var.fax') }}</td>
                             <td class="text-muted">{{ tenant.fax or '' }}</td>
                             <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{fax}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
                         </tr>
                         <tr>
                             <td><code>{% raw %}{{website}}{% endraw %}</code></td>
-                            <td>Website</td>
+                            <td>{{ t('var.website') }}</td>
                             <td class="text-muted">{{ tenant.website or '' }}</td>
                             <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{website}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
                         </tr>
                         <tr>
                             <td><code>{% raw %}{{logo_url}}{% endraw %}</code></td>
-                            <td>Logo URL</td>
+                            <td>{{ t('var.logo_url') }}</td>
                             <td class="text-muted">{{ tenant.logo_url or '' }}</td>
                             <td><button class="btn btn-outline-primary btn-copy" onclick="copyVar('{% raw %}{{logo_url}}{% endraw %}')"><i class="fas fa-copy"></i></button></td>
                         </tr>
@@ -225,10 +225,10 @@
         </li>
         <li class="ms-auto d-flex align-items-center gap-2">
             <button type="button" class="btn btn-outline-success btn-sm" onclick="updatePreview()">
-                <i class="fas fa-sync-alt"></i> Vorschau aktualisieren
+                <i class="fas fa-sync-alt"></i> {{ t('editor.refresh_preview') }}
             </button>
             <button type="submit" class="btn btn-primary btn-sm">
-                <i class="fas fa-save"></i> Speichern
+                <i class="fas fa-save"></i> {{ t('common.save') }}
             </button>
         </li>
     </ul>
@@ -240,13 +240,13 @@
             <div class="row g-3">
                 <div class="col-4">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h6 class="mb-0"><i class="fas fa-edit"></i> HTML-Vorlage</h6>
+                        <h6 class="mb-0"><i class="fas fa-edit"></i> {{ t('editor.html_template') }}</h6>
                     </div>
                     <textarea id="htmlEditor" name="html_template">{{ tenant.html_template or '' }}</textarea>
                 </div>
                 <div class="col-8">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h6 class="mb-0"><i class="fas fa-eye"></i> Vorschau</h6>
+                        <h6 class="mb-0"><i class="fas fa-eye"></i> {{ t('editor.preview') }}</h6>
                     </div>
                     <div class="preview-panel">
                         <iframe id="htmlPreview"></iframe>
@@ -260,13 +260,13 @@
             <div class="row g-3">
                 <div class="col-4">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h6 class="mb-0"><i class="fas fa-edit"></i> Text-Vorlage</h6>
+                        <h6 class="mb-0"><i class="fas fa-edit"></i> {{ t('editor.txt_template') }}</h6>
                     </div>
                     <textarea id="txtEditor" name="txt_template">{{ tenant.txt_template or '' }}</textarea>
                 </div>
                 <div class="col-8">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h6 class="mb-0"><i class="fas fa-eye"></i> Vorschau</h6>
+                        <h6 class="mb-0"><i class="fas fa-eye"></i> {{ t('editor.preview') }}</h6>
                     </div>
                     <div class="preview-panel">
                         <pre id="txtPreview"></pre>
@@ -280,21 +280,19 @@
             <div class="row g-3">
                 <div class="col-4">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h6 class="mb-0"><i class="fas fa-edit"></i> RTF-Vorlage</h6>
+                        <h6 class="mb-0"><i class="fas fa-edit"></i> {{ t('editor.rtf_template') }}</h6>
                     </div>
                     <textarea id="rtfEditor" name="rtf_template">{{ tenant.rtf_template or '' }}</textarea>
                 </div>
                 <div class="col-8">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h6 class="mb-0"><i class="fas fa-eye"></i> Vorschau</h6>
+                        <h6 class="mb-0"><i class="fas fa-eye"></i> {{ t('editor.preview') }}</h6>
                     </div>
                     <div class="preview-panel">
                         <div class="p-3">
                             <div class="alert alert-info mb-0">
                                 <i class="fas fa-info-circle"></i>
-                                <strong>Hinweis:</strong> Die RTF-Vorlage kann hier direkt bearbeitet werden.
-                                Alternativ wird die RTF-Datei automatisch aus der HTML-Vorlage generiert,
-                                wenn kein eigenes RTF-Template hinterlegt ist.
+                                {{ t('editor.rtf_hint') }}
                             </div>
                             <div id="rtfPreview" class="mt-3" style="font-family: monospace; font-size: 0.85rem; white-space: pre-wrap;"></div>
                         </div>
@@ -307,10 +305,10 @@
     <!-- Bottom Buttons -->
     <div class="d-flex gap-2 mt-4 mb-3">
         <button type="submit" class="btn btn-primary btn-lg">
-            <i class="fas fa-save"></i> Speichern
+            <i class="fas fa-save"></i> {{ t('common.save') }}
         </button>
         <a href="{{ url_for('tenants.list_tenants') }}" class="btn btn-outline-secondary btn-lg">
-            <i class="fas fa-arrow-left"></i> Zurück
+            <i class="fas fa-arrow-left"></i> {{ t('common.back') }}
         </a>
     </div>
 </form>
@@ -318,7 +316,7 @@
 <!-- Copy Toast -->
 <div class="copy-toast" id="copyToast" style="display:none;">
     <div class="alert alert-success py-2 px-3 shadow mb-0">
-        <i class="fas fa-check"></i> In die Zwischenablage kopiert!
+        <i class="fas fa-check"></i> {{ t('editor.copied') }}
     </div>
 </div>
 {% endblock %}

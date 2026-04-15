@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard - Signatur Manager{% endblock %}
+{% block title %}{{ t('dash.title') }} - {{ t('app.name') }}{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="fas fa-tachometer-alt"></i> Dashboard</h2>
-    <span class="text-muted">Willkommen, <strong>{{ current_user.username }}</strong></span>
+    <h2><i class="fas fa-tachometer-alt"></i> {{ t('dash.title') }}</h2>
+    <span class="text-muted">{{ t('dash.welcome') }} <strong>{{ current_user.username }}</strong></span>
 </div>
 
 <!-- Statistics Cards -->
@@ -18,7 +18,7 @@
                 </div>
                 <div>
                     <h3 class="mb-0 fw-bold">{{ tenant_count }}</h3>
-                    <small class="text-muted">Mandanten</small>
+                    <small class="text-muted">{{ t('dash.tenants_count') }}</small>
                 </div>
             </div>
         </div>
@@ -31,7 +31,7 @@
                 </div>
                 <div>
                     <h3 class="mb-0 fw-bold">{{ employee_count }}</h3>
-                    <small class="text-muted">Mitarbeiter gesamt</small>
+                    <small class="text-muted">{{ t('dash.employees_count') }}</small>
                 </div>
             </div>
         </div>
@@ -44,7 +44,7 @@
                 </div>
                 <div>
                     <h3 class="mb-0 fw-bold">{{ signature_count }}</h3>
-                    <small class="text-muted">Signaturen generiert</small>
+                    <small class="text-muted">{{ t('dash.signatures_count') }}</small>
                 </div>
             </div>
         </div>
@@ -56,16 +56,16 @@
     <div class="col-12">
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white">
-                <h5 class="mb-0"><i class="fas fa-bolt"></i> Schnellaktionen</h5>
+                <h5 class="mb-0"><i class="fas fa-bolt"></i> {{ t('dash.quick_actions') }}</h5>
             </div>
             <div class="card-body">
                 <a href="{{ url_for('tenants.add_tenant') }}" class="btn btn-primary me-2">
-                    <i class="fas fa-plus-circle"></i> Neuen Mandanten anlegen
+                    <i class="fas fa-plus-circle"></i> {{ t('dash.new_tenant') }}
                 </a>
                 {% if tenants|length > 0 %}
                 <div class="dropdown d-inline-block">
                     <button class="btn btn-outline-success dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                        <i class="fas fa-file-csv"></i> CSV Import
+                        <i class="fas fa-file-csv"></i> {{ t('dash.csv_import') }}
                     </button>
                     <ul class="dropdown-menu">
                         {% for tenant in tenants %}
@@ -88,8 +88,8 @@
     <div class="col-12">
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="fas fa-building"></i> Mandanten</h5>
-                <a href="{{ url_for('tenants.list_tenants') }}" class="btn btn-sm btn-outline-primary">Alle anzeigen</a>
+                <h5 class="mb-0"><i class="fas fa-building"></i> {{ t('dash.tenants') }}</h5>
+                <a href="{{ url_for('tenants.list_tenants') }}" class="btn btn-sm btn-outline-primary">{{ t('dash.show_all') }}</a>
             </div>
             <div class="card-body p-0">
                 {% if tenants|length > 0 %}
@@ -97,10 +97,10 @@
                     <table class="table table-hover mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th>Name</th>
-                                <th>Ort</th>
-                                <th>Mitarbeiter</th>
-                                <th class="text-end">Aktionen</th>
+                                <th>{{ t('common.name') }}</th>
+                                <th>{{ t('common.city') }}</th>
+                                <th>{{ t('dash.employees') }}</th>
+                                <th class="text-end">{{ t('common.actions') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -112,13 +112,13 @@
                                     <span class="badge bg-secondary">{{ tenant.employees|length }}</span>
                                 </td>
                                 <td class="text-end">
-                                    <a href="{{ url_for('signatures.employees', tenant_id=tenant.id) }}" class="btn btn-sm btn-outline-primary" title="Mitarbeiter">
+                                    <a href="{{ url_for('signatures.employees', tenant_id=tenant.id) }}" class="btn btn-sm btn-outline-primary" title="{{ t('dash.employees') }}">
                                         <i class="fas fa-users"></i>
                                     </a>
-                                    <a href="{{ url_for('tenants.templates', tenant_id=tenant.id) }}" class="btn btn-sm btn-outline-info" title="Vorlagen">
+                                    <a href="{{ url_for('tenants.templates', tenant_id=tenant.id) }}" class="btn btn-sm btn-outline-info" title="{{ t('tenants.templates') }}">
                                         <i class="fas fa-code"></i>
                                     </a>
-                                    <a href="{{ url_for('tenants.edit_tenant', tenant_id=tenant.id) }}" class="btn btn-sm btn-outline-secondary" title="Bearbeiten">
+                                    <a href="{{ url_for('tenants.edit_tenant', tenant_id=tenant.id) }}" class="btn btn-sm btn-outline-secondary" title="{{ t('common.edit') }}">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                 </td>
@@ -130,9 +130,9 @@
                 {% else %}
                 <div class="text-center py-5 text-muted">
                     <i class="fas fa-inbox fa-3x mb-3"></i>
-                    <p>Noch keine Mandanten angelegt.</p>
+                    <p>{{ t('dash.no_tenants') }}</p>
                     <a href="{{ url_for('tenants.add_tenant') }}" class="btn btn-primary">
-                        <i class="fas fa-plus-circle"></i> Ersten Mandanten anlegen
+                        <i class="fas fa-plus-circle"></i> {{ t('dash.create_first') }}
                     </a>
                 </div>
                 {% endif %}

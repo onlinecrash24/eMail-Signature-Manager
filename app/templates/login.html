@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Anmelden - Signatur Manager{% endblock %}
+{% block title %}{{ t('login.title') }} - {{ t('app.name') }}{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center align-items-center" style="min-height: 70vh;">
@@ -8,25 +8,25 @@
         <div class="card shadow border-0">
             <div class="card-body p-5">
                 <div class="text-center mb-4">
-                    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="E-Mail Signatur Manager" class="img-fluid mb-3" style="max-height: 120px;">
-                    <p class="text-muted">Bitte melden Sie sich an</p>
+                    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="{{ t('app.name') }}" class="img-fluid mb-3" style="max-height: 120px;">
+                    <p class="text-muted">{{ t('login.prompt') }}</p>
                 </div>
                 <form method="POST" action="{{ url_for('auth.login') }}">
                     <div class="mb-3">
                         <label for="username" class="form-label">
-                            <i class="fas fa-user"></i> Benutzername
+                            <i class="fas fa-user"></i> {{ t('login.username') }}
                         </label>
-                        <input type="text" class="form-control form-control-lg" id="username" name="username" required autofocus placeholder="Benutzername eingeben">
+                        <input type="text" class="form-control form-control-lg" id="username" name="username" required autofocus placeholder="{{ t('login.username_ph') }}">
                     </div>
                     <div class="mb-4">
                         <label for="password" class="form-label">
-                            <i class="fas fa-lock"></i> Passwort
+                            <i class="fas fa-lock"></i> {{ t('login.password') }}
                         </label>
-                        <input type="password" class="form-control form-control-lg" id="password" name="password" required placeholder="Passwort eingeben">
+                        <input type="password" class="form-control form-control-lg" id="password" name="password" required placeholder="{{ t('login.password_ph') }}">
                     </div>
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="fas fa-sign-in-alt"></i> Anmelden
+                            <i class="fas fa-sign-in-alt"></i> {{ t('login.submit') }}
                         </button>
                     </div>
                 </form>
