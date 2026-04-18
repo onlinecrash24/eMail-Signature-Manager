@@ -27,10 +27,9 @@ Webbasiertes Tool zur Erstellung und Verwaltung von E-Mail-Signaturen für mehre
 
 ```yaml
 # docker-compose.yml
-version: '3.8'
 services:
   signature-tool:
-    image: ghcr.io/onlinecrash24/signatur-manager:latest
+    image: ghcr.io/onlinecrash24/email-signature-manager:latest
     container_name: signature-manager
     network_mode: host
     environment:
@@ -61,15 +60,15 @@ Die Anwendung ist unter `http://<server-ip>:5010` erreichbar.
 ### Docker selbst bauen
 
 ```bash
-git clone https://github.com/onlinecrash24/signatur-manager.git
-cd signatur-manager
+git clone https://github.com/onlinecrash24/eMail-signature-manager.git
+cd eMail-signature-manager
 docker compose up -d
 ```
 
 ### Lokal (Entwicklung)
 
 ```bash
-cd signatur-manager
+cd eMail-signature-manager
 python -m venv venv
 
 # Linux/Mac
@@ -101,7 +100,7 @@ Beim ersten Start wird automatisch eine Demo-Firma (**Demo Corp GmbH**) mit eine
 ## Dateistruktur
 
 ```
-signatur-manager/
+eMail-signature-manager/
 ├── .github/workflows/
 │   └── docker-publish.yml          # GitHub Actions: Auto-Build → ghcr.io
 ├── Dockerfile                      # Docker-Image Definition
