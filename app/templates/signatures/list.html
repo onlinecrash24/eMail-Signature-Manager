@@ -1,41 +1,41 @@
 {% extends "base.html" %}
 
-{% block title %}Mitarbeiter - {{ tenant.name }} - Signatur Manager{% endblock %}
+{% block title %}{{ t('emp.title') }} - {{ tenant.name }} - {{ t('app.name') }}{% endblock %}
 
 {% block content %}
 <!-- Breadcrumb -->
 <nav aria-label="breadcrumb" class="mb-3">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ url_for('tenants.list_tenants') }}">Mandanten</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('tenants.list_tenants') }}">{{ t('nav.tenants') }}</a></li>
         <li class="breadcrumb-item"><a href="{{ url_for('tenants.edit_tenant', tenant_id=tenant.id) }}">{{ tenant.name }}</a></li>
-        <li class="breadcrumb-item active">Mitarbeiter</li>
+        <li class="breadcrumb-item active">{{ t('emp.title') }}</li>
     </ol>
 </nav>
 
 <div class="d-flex justify-content-between align-items-start mb-4">
     <div>
-        <h2><i class="fas fa-users"></i> Mitarbeiter - {{ tenant.name }}</h2>
+        <h2><i class="fas fa-users"></i> {{ t('emp.title') }} - {{ tenant.name }}</h2>
         {% if employees|length > 0 %}
-        <span class="text-muted">{{ employees|length }} Mitarbeiter insgesamt</span>
+        <span class="text-muted">{{ t('emp.total', count=employees|length) }}</span>
         {% endif %}
     </div>
     <div class="d-flex gap-2 flex-wrap justify-content-end">
         <a href="{{ url_for('signatures.add_employee', tenant_id=tenant.id) }}" class="btn btn-primary">
-            <i class="fas fa-user-plus"></i> Mitarbeiter anlegen
+            <i class="fas fa-user-plus"></i> {{ t('emp.new') }}
         </a>
         <a href="{{ url_for('signatures.import_csv', tenant_id=tenant.id) }}" class="btn btn-success">
-            <i class="fas fa-file-csv"></i> CSV Import
+            <i class="fas fa-file-csv"></i> {{ t('emp.csv_import') }}
         </a>
         {% if employees|length > 0 %}
         <form method="POST" action="{{ url_for('signatures.generate_signatures', tenant_id=tenant.id) }}" class="d-inline">
             <button type="submit" class="btn btn-info text-white">
-                <i class="fas fa-cogs"></i> Signaturen generieren
+                <i class="fas fa-cogs"></i> {{ t('emp.generate') }}
             </button>
         </form>
         <form method="POST" action="{{ url_for('signatures.deploy_signatures', tenant_id=tenant.id) }}" class="d-inline"
-              onsubmit="return confirm('Signaturen auf SMB-Share deployen?');">
+              onsubmit="return confirm('{{ t('emp.confirm_deploy') }}');">
             <button type="submit" class="btn btn-warning">
-                <i class="fas fa-upload"></i> Auf SMB deployen
+                <i class="fas fa-upload"></i> {{ t('emp.deploy') }}
             </button>
         </form>
         {% endif %}
@@ -43,11 +43,11 @@
 </div>
 
 {% if employees|length > 0 %}
-<!-- Suchfeld -->
+<!-- Search -->
 <div class="mb-3">
     <div class="input-group">
         <span class="input-group-text bg-white"><i class="fas fa-search"></i></span>
-        <input type="text" id="searchInput" class="form-control" placeholder="Mitarbeiter suchen (Name, E-Mail, Abteilung...)">
+        <input type="text" id="searchInput" class="form-control" placeholder="{{ t('emp.search_ph') }}">
     </div>
 </div>
 
@@ -58,14 +58,14 @@
                 <thead class="table-light">
                     <tr>
                         <th style="width: 5%">#</th>
-                        <th style="width: 8%">Titel</th>
-                        <th style="width: 13%">Vorname</th>
-                        <th style="width: 13%">Nachname</th>
-                        <th style="width: 18%">E-Mail</th>
-                        <th style="width: 12%">Durchwahl</th>
-                        <th style="width: 12%">Opt. Rufnummer</th>
-                        <th style="width: 10%">Abteilung</th>
-                        <th style="width: 9%" class="text-end">Aktionen</th>
+                        <th style="width: 8%">{{ t('emp.titel') }}</th>
+                        <th style="width: 13%">{{ t('emp.vorname') }}</th>
+                        <th style="width: 13%">{{ t('emp.nachname') }}</th>
+                        <th style="width: 18%">{{ t('emp.email') }}</th>
+                        <th style="width: 12%">{{ t('emp.durchwahl') }}</th>
+                        <th style="width: 12%">{{ t('emp.opt_rufnummer') }}</th>
+                        <th style="width: 10%">{{ t('emp.abteilung') }}</th>
+                        <th style="width: 9%" class="text-end">{{ t('common.actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -87,18 +87,18 @@
                         </td>
                         <td class="text-end text-nowrap">
                             <a href="{{ url_for('signatures.edit_employee', tenant_id=tenant.id, employee_id=emp.id) }}"
-                               class="btn btn-sm btn-outline-secondary" title="Bearbeiten">
+                               class="btn btn-sm btn-outline-secondary" title="{{ t('common.edit') }}">
                                 <i class="fas fa-edit"></i>
                             </a>
                             <a href="{{ url_for('signatures.preview_employee', tenant_id=tenant.id, employee_id=emp.id) }}"
-                               class="btn btn-sm btn-outline-primary" title="Vorschau">
+                               class="btn btn-sm btn-outline-primary" title="{{ t('preview.title') }}">
                                 <i class="fas fa-eye"></i>
                             </a>
                             <form method="POST"
                                   action="{{ url_for('signatures.delete_employee', tenant_id=tenant.id, employee_id=emp.id) }}"
                                   class="d-inline"
-                                  onsubmit="return confirm('Mitarbeiter {{ emp.vorname }} {{ emp.nachname }} wirklich löschen?');">
-                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Löschen">
+                                  onsubmit="return confirm('{{ t('emp.confirm_delete', name=emp.vorname ~ ' ' ~ emp.nachname) }}');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ t('common.delete') }}">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>
@@ -112,10 +112,10 @@
     <div class="card-footer bg-white d-flex justify-content-between align-items-center">
         <small class="text-muted">
             <i class="fas fa-info-circle"></i>
-            <span id="visibleCount">{{ employees|length }}</span> von {{ employees|length }} Mitarbeitern angezeigt
+            <span id="visibleCount">{{ employees|length }}</span> / {{ employees|length }}
         </small>
         <a href="{{ url_for('signatures.add_employee', tenant_id=tenant.id) }}" class="btn btn-sm btn-outline-primary">
-            <i class="fas fa-user-plus"></i> Weiteren Mitarbeiter anlegen
+            <i class="fas fa-user-plus"></i> {{ t('emp.add_another') }}
         </a>
     </div>
 </div>
@@ -124,14 +124,14 @@
 <div class="card border-0 shadow-sm">
     <div class="card-body text-center py-5 text-muted">
         <i class="fas fa-user-slash fa-3x mb-3"></i>
-        <h5>Noch keine Mitarbeiter vorhanden</h5>
-        <p class="mb-4">Importieren Sie eine CSV-Datei oder legen Sie Mitarbeiter manuell an.</p>
+        <h5>{{ t('emp.no_employees') }}</h5>
+        <p class="mb-4">{{ t('emp.no_employees_hint') }}</p>
         <div class="d-flex gap-3 justify-content-center">
             <a href="{{ url_for('signatures.add_employee', tenant_id=tenant.id) }}" class="btn btn-primary btn-lg">
-                <i class="fas fa-user-plus"></i> Mitarbeiter anlegen
+                <i class="fas fa-user-plus"></i> {{ t('emp.create_employee') }}
             </a>
             <a href="{{ url_for('signatures.import_csv', tenant_id=tenant.id) }}" class="btn btn-success btn-lg">
-                <i class="fas fa-file-csv"></i> CSV importieren
+                <i class="fas fa-file-csv"></i> {{ t('emp.import_csv') }}
             </a>
         </div>
     </div>

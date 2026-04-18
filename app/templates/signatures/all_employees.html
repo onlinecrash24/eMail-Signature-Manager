@@ -1,31 +1,31 @@
 {% extends "base.html" %}
 
-{% block title %}Alle Mitarbeiter - Signatur Manager{% endblock %}
+{% block title %}{{ t('emp.all_title') }} - {{ t('app.name') }}{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-start mb-4">
     <div>
-        <h2><i class="fas fa-users"></i> Alle Mitarbeiter</h2>
-        <span class="text-muted">{{ employees|length }} Mitarbeiter in {{ tenants|length }} Mandanten</span>
+        <h2><i class="fas fa-users"></i> {{ t('emp.all_title') }}</h2>
+        <span class="text-muted">{{ t('emp.all_count', count=employees|length, tenants=tenants|length) }}</span>
     </div>
 </div>
 
-<!-- Suche und Filter -->
+<!-- Search -->
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-body">
         <form method="GET" action="{{ url_for('signatures.all_employees') }}" class="row g-3 align-items-end">
             <div class="col-md-9">
-                <label for="searchInput" class="form-label">Suche</label>
+                <label for="searchInput" class="form-label">{{ t('common.search') }}</label>
                 <div class="input-group">
                     <span class="input-group-text bg-white"><i class="fas fa-search"></i></span>
                     <input type="text" id="searchInput" name="q" class="form-control"
-                           placeholder="Name, E-Mail, Abteilung, Mandant..."
+                           placeholder="{{ t('emp.search_all_ph') }}"
                            value="{{ search }}">
                 </div>
             </div>
             <div class="col-md-3 d-flex gap-2">
                 <button type="submit" class="btn btn-primary flex-fill">
-                    <i class="fas fa-search"></i> Suchen
+                    <i class="fas fa-search"></i> {{ t('common.search') }}
                 </button>
                 {% if search %}
                 <a href="{{ url_for('signatures.all_employees') }}" class="btn btn-outline-secondary">
@@ -45,15 +45,15 @@
                 <thead class="table-light">
                     <tr>
                         <th style="width: 4%">#</th>
-                        <th style="width: 14%">Mandant</th>
-                        <th style="width: 6%">Titel</th>
-                        <th style="width: 11%">Vorname</th>
-                        <th style="width: 11%">Nachname</th>
-                        <th style="width: 16%">E-Mail</th>
-                        <th style="width: 10%">Durchwahl</th>
-                        <th style="width: 10%">Opt. Rufnummer</th>
-                        <th style="width: 9%">Abteilung</th>
-                        <th style="width: 9%" class="text-end">Aktionen</th>
+                        <th style="width: 14%">{{ t('emp.tenant') }}</th>
+                        <th style="width: 6%">{{ t('emp.titel') }}</th>
+                        <th style="width: 11%">{{ t('emp.vorname') }}</th>
+                        <th style="width: 11%">{{ t('emp.nachname') }}</th>
+                        <th style="width: 16%">{{ t('emp.email') }}</th>
+                        <th style="width: 10%">{{ t('emp.durchwahl') }}</th>
+                        <th style="width: 10%">{{ t('emp.opt_rufnummer') }}</th>
+                        <th style="width: 9%">{{ t('emp.abteilung') }}</th>
+                        <th style="width: 9%" class="text-end">{{ t('common.actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -80,18 +80,18 @@
                         </td>
                         <td class="text-end text-nowrap">
                             <a href="{{ url_for('signatures.edit_employee', tenant_id=emp.tenant_id, employee_id=emp.id) }}"
-                               class="btn btn-sm btn-outline-secondary" title="Bearbeiten">
+                               class="btn btn-sm btn-outline-secondary" title="{{ t('common.edit') }}">
                                 <i class="fas fa-edit"></i>
                             </a>
                             <a href="{{ url_for('signatures.preview_employee', tenant_id=emp.tenant_id, employee_id=emp.id) }}"
-                               class="btn btn-sm btn-outline-primary" title="Vorschau">
+                               class="btn btn-sm btn-outline-primary" title="{{ t('preview.title') }}">
                                 <i class="fas fa-eye"></i>
                             </a>
                             <form method="POST"
                                   action="{{ url_for('signatures.delete_employee', tenant_id=emp.tenant_id, employee_id=emp.id) }}"
                                   class="d-inline"
-                                  onsubmit="return confirm('Mitarbeiter {{ emp.vorname }} {{ emp.nachname }} wirklich löschen?');">
-                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Löschen">
+                                  onsubmit="return confirm('{{ t('emp.confirm_delete', name=emp.vorname ~ ' ' ~ emp.nachname) }}');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ t('common.delete') }}">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>
@@ -105,7 +105,7 @@
     <div class="card-footer bg-white">
         <small class="text-muted">
             <i class="fas fa-info-circle"></i>
-            {{ employees|length }} Mitarbeiter angezeigt
+            {{ t('emp.shown', count=employees|length) }}
             {% if search %} (Filter: "{{ search }}"){% endif %}
         </small>
     </div>
@@ -116,17 +116,16 @@
     <div class="card-body text-center py-5 text-muted">
         {% if search %}
         <i class="fas fa-search fa-3x mb-3"></i>
-        <h5>Keine Ergebnisse für "{{ search }}"</h5>
-        <p>Versuchen Sie einen anderen Suchbegriff.</p>
+        <h5>{{ t('common.search') }}: "{{ search }}"</h5>
         <a href="{{ url_for('signatures.all_employees') }}" class="btn btn-outline-primary">
-            <i class="fas fa-times"></i> Filter zurücksetzen
+            <i class="fas fa-times"></i>
         </a>
         {% else %}
         <i class="fas fa-user-slash fa-3x mb-3"></i>
-        <h5>Noch keine Mitarbeiter vorhanden</h5>
-        <p>Legen Sie zuerst einen Mandanten an und importieren Sie Mitarbeiter.</p>
+        <h5>{{ t('emp.no_employees') }}</h5>
+        <p>{{ t('emp.no_employees_hint') }}</p>
         <a href="{{ url_for('tenants.list_tenants') }}" class="btn btn-primary">
-            <i class="fas fa-building"></i> Zu den Mandanten
+            <i class="fas fa-building"></i> {{ t('nav.tenants') }}
         </a>
         {% endif %}
     </div>

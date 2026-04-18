@@ -12,3 +12,4 @@ class Config:
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 MB
     DATA_DIR = os.environ.get('DATA_DIR', '/opt/signature-tool/data')
     GENERATED_DIR = os.environ.get('GENERATED_DIR', '/opt/signature-tool/data/generated')
+    DEFAULT_LANG = os.environ.get('DEFAULT_LANG', 'en')  # 'en' or 'de'

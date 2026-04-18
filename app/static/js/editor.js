@@ -1,5 +1,5 @@
 /* ============================================
-   Email Signature Manager - Template Editor
+   eMail Signature Manager - Template Editor
    Requires: CodeMirror 5 (loaded via CDN)
    ============================================ */
 

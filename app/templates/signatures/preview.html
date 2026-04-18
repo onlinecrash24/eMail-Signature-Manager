@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Signatur-Vorschau - {{ employee.vorname }} {{ employee.nachname }} - Signatur Manager{% endblock %}
+{% block title %}{{ t('preview.title') }} - {{ employee.vorname }} {{ employee.nachname }} - {{ t('app.name') }}{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -38,26 +38,25 @@
 <!-- Breadcrumb -->
 <nav aria-label="breadcrumb" class="mb-3">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ url_for('tenants.list_tenants') }}">Mandanten</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('tenants.list_tenants') }}">{{ t('nav.tenants') }}</a></li>
         <li class="breadcrumb-item"><a href="{{ url_for('tenants.edit_tenant', tenant_id=tenant.id) }}">{{ tenant.name }}</a></li>
-        <li class="breadcrumb-item"><a href="{{ url_for('signatures.employees', tenant_id=tenant.id) }}">Mitarbeiter</a></li>
-        <li class="breadcrumb-item active">Vorschau</li>
+        <li class="breadcrumb-item"><a href="{{ url_for('signatures.employees', tenant_id=tenant.id) }}">{{ t('emp.title') }}</a></li>
+        <li class="breadcrumb-item active">{{ t('preview.title') }}</li>
     </ol>
 </nav>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>
-        <i class="fas fa-eye"></i> Signatur-Vorschau - {{ employee.vorname }} {{ employee.nachname }}
+        <i class="fas fa-eye"></i> {{ t('preview.title') }} - {{ employee.vorname }} {{ employee.nachname }}
     </h2>
     <a href="{{ url_for('signatures.employees', tenant_id=tenant.id) }}" class="btn btn-outline-secondary">
-        <i class="fas fa-arrow-left"></i> Zurück zur Mitarbeiterliste
+        <i class="fas fa-arrow-left"></i> {{ t('common.back') }}
     </a>
 </div>
 
 <div class="row g-4">
-    <!-- Signature Preview (main area) -->
+    <!-- Signature Preview -->
     <div class="col-lg-9">
-        <!-- Tabs -->
         <ul class="nav nav-tabs" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="prev-html-tab" data-bs-toggle="tab" data-bs-target="#prev-html" type="button" role="tab">
@@ -77,7 +76,6 @@
         </ul>
 
         <div class="tab-content">
-            <!-- HTML Preview -->
             <div class="tab-pane fade show active" id="prev-html" role="tabpanel">
                 <div class="signature-preview-frame">
                     {% if html_signature %}
@@ -85,16 +83,15 @@
                     {% else %}
                     <div class="text-center py-5 text-muted">
                         <i class="fas fa-exclamation-circle fa-2x mb-3"></i>
-                        <p>Keine HTML-Signatur vorhanden.<br>Bitte erstellen Sie zuerst eine HTML-Vorlage und generieren Sie die Signaturen.</p>
+                        <p>{{ t('preview.no_html') }}</p>
                         <a href="{{ url_for('tenants.templates', tenant_id=tenant.id) }}" class="btn btn-outline-primary btn-sm">
-                            <i class="fas fa-code"></i> Vorlage bearbeiten
+                            <i class="fas fa-code"></i> {{ t('preview.edit_template') }}
                         </a>
                     </div>
                     {% endif %}
                 </div>
             </div>
 
-            <!-- TXT Preview -->
             <div class="tab-pane fade" id="prev-txt" role="tabpanel">
                 <div class="signature-preview-frame">
                     {% if txt_signature %}
@@ -102,33 +99,31 @@
                     {% else %}
                     <div class="text-center py-5 text-muted">
                         <i class="fas fa-exclamation-circle fa-2x mb-3"></i>
-                        <p>Keine Text-Signatur vorhanden.<br>Bitte erstellen Sie zuerst eine TXT-Vorlage und generieren Sie die Signaturen.</p>
+                        <p>{{ t('preview.no_txt') }}</p>
                         <a href="{{ url_for('tenants.templates', tenant_id=tenant.id) }}" class="btn btn-outline-primary btn-sm">
-                            <i class="fas fa-code"></i> Vorlage bearbeiten
+                            <i class="fas fa-code"></i> {{ t('preview.edit_template') }}
                         </a>
                     </div>
                     {% endif %}
                 </div>
             </div>
 
-            <!-- RTF Preview -->
             <div class="tab-pane fade" id="prev-rtf" role="tabpanel">
                 <div class="signature-preview-frame">
                     {% if rtf_signature %}
                     <div class="p-4">
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle"></i>
-                            RTF-Dateien können nicht direkt im Browser angezeigt werden.
-                            Die Datei wurde erfolgreich generiert.
+                            {{ t('preview.rtf_note') }}
                         </div>
                         <div class="bg-light p-3 rounded" style="font-family: monospace; font-size: 0.8rem; max-height: 300px; overflow: auto; white-space: pre-wrap;">{{ rtf_signature[:500] }}{% if rtf_signature|length > 500 %}...{% endif %}</div>
                     </div>
                     {% else %}
                     <div class="text-center py-5 text-muted">
                         <i class="fas fa-exclamation-circle fa-2x mb-3"></i>
-                        <p>Keine RTF-Signatur vorhanden.<br>Bitte erstellen Sie zuerst eine RTF-Vorlage und generieren Sie die Signaturen.</p>
+                        <p>{{ t('preview.no_rtf') }}</p>
                         <a href="{{ url_for('tenants.templates', tenant_id=tenant.id) }}" class="btn btn-outline-primary btn-sm">
-                            <i class="fas fa-code"></i> Vorlage bearbeiten
+                            <i class="fas fa-code"></i> {{ t('preview.edit_template') }}
                         </a>
                     </div>
                     {% endif %}
@@ -141,36 +136,36 @@
     <div class="col-lg-3">
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-primary text-white">
-                <h6 class="mb-0"><i class="fas fa-user"></i> Mitarbeiterdaten</h6>
+                <h6 class="mb-0"><i class="fas fa-user"></i> {{ t('preview.employee_data') }}</h6>
             </div>
             <div class="card-body employee-info">
                 <dl class="mb-0">
                     {% if employee.titel %}
-                    <dt>Titel</dt>
+                    <dt>{{ t('emp.titel') }}</dt>
                     <dd>{{ employee.titel }}</dd>
                     {% endif %}
 
-                    <dt>Vorname</dt>
+                    <dt>{{ t('emp.vorname') }}</dt>
                     <dd>{{ employee.vorname }}</dd>
 
-                    <dt>Nachname</dt>
+                    <dt>{{ t('emp.nachname') }}</dt>
                     <dd>{{ employee.nachname }}</dd>
 
-                    <dt>E-Mail</dt>
+                    <dt>{{ t('emp.email') }}</dt>
                     <dd><a href="mailto:{{ employee.email }}">{{ employee.email }}</a></dd>
 
                     {% if employee.durchwahl %}
-                    <dt>Durchwahl</dt>
+                    <dt>{{ t('emp.durchwahl') }}</dt>
                     <dd>{{ employee.durchwahl }}</dd>
                     {% endif %}
 
                     {% if employee.optionale_rufnummer %}
-                    <dt>Optionale Rufnummer</dt>
+                    <dt>{{ t('emp.opt_rufnummer') }}</dt>
                     <dd>{{ employee.optionale_rufnummer }}</dd>
                     {% endif %}
 
                     {% if employee.abteilung %}
-                    <dt>Abteilung</dt>
+                    <dt>{{ t('emp.abteilung') }}</dt>
                     <dd><span class="badge bg-info text-dark">{{ employee.abteilung }}</span></dd>
                     {% endif %}
                 </dl>
@@ -179,20 +174,20 @@
 
         <div class="card border-0 shadow-sm mt-3">
             <div class="card-header bg-white">
-                <h6 class="mb-0"><i class="fas fa-building"></i> Mandant</h6>
+                <h6 class="mb-0"><i class="fas fa-building"></i> {{ t('preview.tenant_info') }}</h6>
             </div>
             <div class="card-body employee-info">
                 <dl class="mb-0">
-                    <dt>Firma</dt>
+                    <dt>{{ t('preview.company') }}</dt>
                     <dd>{{ tenant.name }}</dd>
 
                     {% if tenant.city %}
-                    <dt>Ort</dt>
+                    <dt>{{ t('preview.location') }}</dt>
                     <dd>{{ tenant.zip_code }} {{ tenant.city }}</dd>
                     {% endif %}
 
                     {% if tenant.phone %}
-                    <dt>Telefon</dt>
+                    <dt>{{ t('tenants.phone') }}</dt>
                     <dd>{{ tenant.phone }}</dd>
                     {% endif %}
                 </dl>
@@ -201,10 +196,10 @@
 
         <div class="d-grid gap-2 mt-3">
             <a href="{{ url_for('signatures.generate_signatures', tenant_id=tenant.id) }}" class="btn btn-outline-success">
-                <i class="fas fa-sync-alt"></i> Signaturen neu generieren
+                <i class="fas fa-sync-alt"></i> {{ t('preview.regenerate') }}
             </a>
             <a href="{{ url_for('signatures.employees', tenant_id=tenant.id) }}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left"></i> Zurück
+                <i class="fas fa-arrow-left"></i> {{ t('common.back') }}
             </a>
         </div>
     </div>
@@ -213,7 +208,6 @@
 
 {% block extra_js %}
 <script>
-// Auto-resize iframe to fit content
 document.addEventListener('DOMContentLoaded', function() {
     var iframe = document.getElementById('htmlSigPreview');
     if (iframe) {

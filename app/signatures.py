@@ -13,6 +13,7 @@ from sqlalchemy import or_
 from app import db
 from app.models import Tenant, Employee
 from app.smb_utils import upload_to_smb
+from app.translations import t as translate
 
 signatures_bp = Blueprint('signatures', __name__)
 
@@ -60,7 +61,7 @@ def _render_template_string(template_text, variables):
         tmpl = env.from_string(template_text)
         return tmpl.render(**variables)
     except Exception as e:
-        return f'Fehler beim Rendern: {e}'
+        return f'Template render error: {e}'
 
 
 def _encode_html_entities(text):
@@ -88,7 +89,7 @@ def _encode_html_entities(text):
 def employees(tenant_id):
     tenant = db.session.get(Tenant, tenant_id)
     if not tenant:
-        flash('Mandant nicht gefunden.', 'danger')
+        flash(translate('flash.tenant_not_found'), 'danger')
         return redirect(url_for('tenants.list_tenants'))
 
     employee_list = (
@@ -109,21 +110,21 @@ def employees(tenant_id):
 def import_csv(tenant_id):
     tenant = db.session.get(Tenant, tenant_id)
     if not tenant:
-        flash('Mandant nicht gefunden.', 'danger')
+        flash(translate('flash.tenant_not_found'), 'danger')
         return redirect(url_for('tenants.list_tenants'))
 
     if request.method == 'POST':
         if 'csv_file' not in request.files:
-            flash('Keine Datei ausgewählt.', 'danger')
+            flash(translate('flash.no_file'), 'danger')
             return redirect(url_for('signatures.import_csv', tenant_id=tenant_id))
 
         file = request.files['csv_file']
         if file.filename == '':
-            flash('Keine Datei ausgewählt.', 'danger')
+            flash(translate('flash.no_file'), 'danger')
             return redirect(url_for('signatures.import_csv', tenant_id=tenant_id))
 
         if not file.filename.lower().endswith('.csv'):
-            flash('Nur CSV-Dateien sind erlaubt.', 'danger')
+            flash(translate('flash.only_csv'), 'danger')
             return redirect(url_for('signatures.import_csv', tenant_id=tenant_id))
 
         try:
@@ -239,18 +240,18 @@ def import_csv(tenant_id):
 
             msg_parts = []
             if imported_count:
-                msg_parts.append(f'{imported_count} Mitarbeiter importiert')
+                msg_parts.append(translate('flash.imported', count=imported_count))
             if updated_count:
-                msg_parts.append(f'{updated_count} Mitarbeiter aktualisiert')
+                msg_parts.append(translate('flash.updated', count=updated_count))
             if not msg_parts:
-                msg_parts.append('Keine Datensätze importiert')
+                msg_parts.append(translate('flash.no_records'))
 
             flash(', '.join(msg_parts) + '.', 'success')
             return redirect(url_for('signatures.employees', tenant_id=tenant_id))
 
         except Exception as e:
             db.session.rollback()
-            flash(f'Fehler beim Import: {e}', 'danger')
+            flash(translate('flash.import_error', error=str(e)), 'danger')
             return redirect(url_for('signatures.import_csv', tenant_id=tenant_id))
 
     return render_template('signatures/import.html', tenant=tenant)
@@ -261,7 +262,7 @@ def import_csv(tenant_id):
 def add_employee(tenant_id):
     tenant = db.session.get(Tenant, tenant_id)
     if not tenant:
-        flash('Mandant nicht gefunden.', 'danger')
+        flash(translate('flash.tenant_not_found'), 'danger')
         return redirect(url_for('tenants.list_tenants'))
 
     if request.method == 'POST':
@@ -277,7 +278,7 @@ def add_employee(tenant_id):
         )
         db.session.add(employee)
         db.session.commit()
-        flash(f'Mitarbeiter "{employee.vorname} {employee.nachname}" wurde angelegt.', 'success')
+        flash(translate('flash.employee_created', name=f'{employee.vorname} {employee.nachname}'), 'success')
         return redirect(url_for('signatures.employees', tenant_id=tenant_id))
 
     return render_template('signatures/employee_form.html', tenant=tenant, employee=None, action='add')
@@ -289,7 +290,7 @@ def edit_employee(tenant_id, employee_id):
     tenant = db.session.get(Tenant, tenant_id)
     employee = db.session.get(Employee, employee_id)
     if not tenant or not employee or employee.tenant_id != tenant_id:
-        flash('Nicht gefunden.', 'danger')
+        flash(translate('flash.not_found'), 'danger')
         return redirect(url_for('signatures.employees', tenant_id=tenant_id))
 
     if request.method == 'POST':
@@ -301,7 +302,7 @@ def edit_employee(tenant_id, employee_id):
         employee.optionale_rufnummer = request.form.get('optionale_rufnummer', '').strip()
         employee.abteilung = request.form.get('abteilung', '').strip()
         db.session.commit()
-        flash(f'Mitarbeiter "{employee.vorname} {employee.nachname}" wurde aktualisiert.', 'success')
+        flash(translate('flash.employee_updated', name=f'{employee.vorname} {employee.nachname}'), 'success')
         return redirect(url_for('signatures.employees', tenant_id=tenant_id))
 
     return render_template('signatures/employee_form.html', tenant=tenant, employee=employee, action='edit')
@@ -312,14 +313,14 @@ def edit_employee(tenant_id, employee_id):
 def delete_employee(tenant_id, employee_id):
     employee = db.session.get(Employee, employee_id)
     if not employee or employee.tenant_id != tenant_id:
-        flash('Mitarbeiter nicht gefunden.', 'danger')
+        flash(translate('flash.employee_not_found'), 'danger')
         return redirect(url_for('signatures.employees', tenant_id=tenant_id))
 
     name = f'{employee.vorname} {employee.nachname}'
     db.session.delete(employee)
     db.session.commit()
 
-    flash(f'Mitarbeiter "{name}" wurde gelöscht.', 'success')
+    flash(translate('flash.employee_deleted', name=name), 'success')
     return redirect(url_for('signatures.employees', tenant_id=tenant_id))
 
 
@@ -329,7 +330,7 @@ def preview_employee(tenant_id, employee_id):
     tenant = db.session.get(Tenant, tenant_id)
     employee = db.session.get(Employee, employee_id)
     if not tenant or not employee or employee.tenant_id != tenant_id:
-        flash('Nicht gefunden.', 'danger')
+        flash(translate('flash.not_found'), 'danger')
         return redirect(url_for('signatures.employees', tenant_id=tenant_id))
 
     variables = employee.to_template_vars(tenant)
@@ -353,12 +354,12 @@ def preview_employee(tenant_id, employee_id):
 def generate_signatures(tenant_id):
     tenant = db.session.get(Tenant, tenant_id)
     if not tenant:
-        flash('Mandant nicht gefunden.', 'danger')
+        flash(translate('flash.tenant_not_found'), 'danger')
         return redirect(url_for('tenants.list_tenants'))
 
     employee_list = db.session.query(Employee).filter_by(tenant_id=tenant_id).all()
     if not employee_list:
-        flash('Keine Mitarbeiter vorhanden.', 'warning')
+        flash(translate('flash.no_employees'), 'warning')
         return redirect(url_for('signatures.employees', tenant_id=tenant_id))
 
     generated_dir = current_app.config['GENERATED_DIR']
@@ -412,7 +413,7 @@ def generate_signatures(tenant_id):
 
         count += 1
 
-    flash(f'Signaturen für {count} Mitarbeiter wurden generiert.', 'success')
+    flash(translate('flash.signatures_generated', count=count), 'success')
     return redirect(url_for('signatures.employees', tenant_id=tenant_id))
 
 
@@ -421,18 +422,18 @@ def generate_signatures(tenant_id):
 def deploy_signatures(tenant_id):
     tenant = db.session.get(Tenant, tenant_id)
     if not tenant:
-        flash('Mandant nicht gefunden.', 'danger')
+        flash(translate('flash.tenant_not_found'), 'danger')
         return redirect(url_for('tenants.list_tenants'))
 
     if not tenant.smb_path:
-        flash('Kein SMB-Pfad konfiguriert.', 'danger')
+        flash(translate('flash.no_smb_path'), 'danger')
         return redirect(url_for('signatures.employees', tenant_id=tenant_id))
 
     generated_dir = current_app.config['GENERATED_DIR']
     tenant_dir = os.path.join(generated_dir, str(tenant_id))
 
     if not os.path.exists(tenant_dir):
-        flash('Keine generierten Signaturen vorhanden. Bitte zuerst generieren.', 'warning')
+        flash(translate('flash.no_generated'), 'warning')
         return redirect(url_for('signatures.employees', tenant_id=tenant_id))
 
     try:
@@ -442,8 +443,8 @@ def deploy_signatures(tenant_id):
             tenant.smb_password,
             tenant_dir,
         )
-        flash('Signaturen wurden erfolgreich auf den SMB-Share bereitgestellt.', 'success')
+        flash(translate('flash.deploy_success'), 'success')
     except Exception as e:
-        flash(f'Fehler beim Deployment: {e}', 'danger')
+        flash(translate('flash.deploy_error', error=str(e)), 'danger')
 
     return redirect(url_for('signatures.employees', tenant_id=tenant_id))

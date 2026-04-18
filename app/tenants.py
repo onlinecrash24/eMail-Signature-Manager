@@ -4,6 +4,7 @@ from flask_login import login_required
 from app import db
 from app.models import Tenant
 from app.smb_utils import test_smb_connection
+from app.translations import t as translate
 
 tenants_bp = Blueprint('tenants', __name__)
 
@@ -11,21 +12,21 @@ tenants_bp = Blueprint('tenants', __name__)
 def _get_sample_data():
     """Return sample data for template preview."""
     return {
-        'vorname': 'Max',
-        'nachname': 'Mustermann',
-        'titel': 'Dr.',
-        'durchwahl': '0441 12345 - 422',
-        'email': 'max.mustermann@example.de',
-        'optionale_rufnummer': '0441 12345 - 400 (Zentrale)',
-        'abteilung': 'Abteilungsleiter IT',
-        'firma': 'Musterfirma GmbH',
-        'strasse': 'Musterstraße 1',
-        'plz': '26121',
-        'ort': 'Oldenburg',
-        'telefon': '0441 12345 - 0',
-        'fax': '0441 12345 - 999',
-        'website': 'https://www.musterfirma.de',
-        'logo_url': 'https://via.placeholder.com/150x60?text=Logo',
+        'vorname': 'Julia',
+        'nachname': 'Bergmann',
+        'titel': '',
+        'durchwahl': '+49 40 12345-67',
+        'email': 'j.bergmann@demo-corp.example',
+        'optionale_rufnummer': '+49 177 12345678',
+        'abteilung': 'IT Department',
+        'firma': 'Demo Corp GmbH',
+        'strasse': 'Jungfernstieg 42',
+        'plz': '20354',
+        'ort': 'Hamburg',
+        'telefon': '+49 40 12345-0',
+        'fax': '+49 40 12345-99',
+        'website': 'https://www.demo-corp.example',
+        'logo_url': 'https://www.signatool.de/logo.png',
     }
 
 
@@ -41,7 +42,7 @@ def _render_template_string(template_text, variables):
         tmpl = env.from_string(template_text)
         return tmpl.render(**variables)
     except Exception as e:
-        return f'Fehler beim Rendern: {e}'
+        return f'Template render error: {e}'
 
 
 @tenants_bp.route('/')
@@ -72,12 +73,12 @@ def add_tenant():
         )
 
         if not tenant.name or not tenant.short_name:
-            flash('Firmenname und Firmenkürzel sind erforderlich.', 'danger')
+            flash(translate('flash.tenant_name_required'), 'danger')
             return render_template('tenants/form.html', tenant=tenant, action='add')
 
         db.session.add(tenant)
         db.session.commit()
-        flash(f'Mandant "{tenant.name}" wurde erstellt.', 'success')
+        flash(translate('flash.tenant_created', name=tenant.name), 'success')
         return redirect(url_for('tenants.list_tenants'))
 
     return render_template('tenants/form.html', tenant=Tenant(), action='add')
@@ -88,7 +89,7 @@ def add_tenant():
 def edit_tenant(tenant_id):
     tenant = db.session.get(Tenant, tenant_id)
     if not tenant:
-        flash('Mandant nicht gefunden.', 'danger')
+        flash(translate('flash.tenant_not_found'), 'danger')
         return redirect(url_for('tenants.list_tenants'))
 
     if request.method == 'POST':
@@ -108,11 +109,11 @@ def edit_tenant(tenant_id):
             tenant.smb_password = smb_password
 
         if not tenant.name or not tenant.short_name:
-            flash('Firmenname und Firmenkürzel sind erforderlich.', 'danger')
+            flash(translate('flash.tenant_name_required'), 'danger')
             return render_template('tenants/form.html', tenant=tenant, action='edit')
 
         db.session.commit()
-        flash(f'Mandant "{tenant.name}" wurde aktualisiert.', 'success')
+        flash(translate('flash.tenant_updated', name=tenant.name), 'success')
         return redirect(url_for('tenants.list_tenants'))
 
     return render_template('tenants/form.html', tenant=tenant, action='edit')
@@ -123,14 +124,14 @@ def edit_tenant(tenant_id):
 def delete_tenant(tenant_id):
     tenant = db.session.get(Tenant, tenant_id)
     if not tenant:
-        flash('Mandant nicht gefunden.', 'danger')
+        flash(translate('flash.tenant_not_found'), 'danger')
         return redirect(url_for('tenants.list_tenants'))
 
     name = tenant.name
     db.session.delete(tenant)
     db.session.commit()
 
-    flash(f'Mandant "{name}" und alle Mitarbeiter wurden gelöscht.', 'success')
+    flash(translate('flash.tenant_deleted', name=name), 'success')
     return redirect(url_for('tenants.list_tenants'))
 
 
@@ -139,7 +140,7 @@ def delete_tenant(tenant_id):
 def templates(tenant_id):
     tenant = db.session.get(Tenant, tenant_id)
     if not tenant:
-        flash('Mandant nicht gefunden.', 'danger')
+        flash(translate('flash.tenant_not_found'), 'danger')
         return redirect(url_for('tenants.list_tenants'))
 
     if request.method == 'POST':
@@ -147,7 +148,7 @@ def templates(tenant_id):
         tenant.txt_template = request.form.get('txt_template', '')
         tenant.rtf_template = request.form.get('rtf_template', '')
         db.session.commit()
-        flash('Vorlagen wurden gespeichert.', 'success')
+        flash(translate('flash.templates_saved'), 'success')
         return redirect(url_for('tenants.templates', tenant_id=tenant_id))
 
     sample = _get_sample_data()
@@ -169,7 +170,7 @@ def templates(tenant_id):
 def preview_template(tenant_id):
     tenant = db.session.get(Tenant, tenant_id)
     if not tenant:
-        return jsonify({'error': 'Mandant nicht gefunden'}), 404
+        return jsonify({'error': 'Tenant not found'}), 404
 
     template_text = request.json.get('template', '')
     format_type = request.json.get('format', 'html')
@@ -203,10 +204,10 @@ def test_smb():
     smb_password = (data.get('smb_password') or '').strip()
 
     if not smb_path:
-        return jsonify({'success': False, 'error': 'Kein SMB-Pfad angegeben.'})
+        return jsonify({'success': False, 'error': translate('flash.smb_no_path')})
 
     if not smb_username or not smb_password:
-        return jsonify({'success': False, 'error': 'Benutzername und Passwort erforderlich.'})
+        return jsonify({'success': False, 'error': translate('flash.smb_credentials_required')})
 
     success, message = test_smb_connection(smb_path, smb_username, smb_password)
     return jsonify({'success': success, 'error': message if not success else None, 'message': message})
