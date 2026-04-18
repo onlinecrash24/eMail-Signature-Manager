@@ -26,7 +26,7 @@ def _get_sample_data():
         'telefon': '+49 40 12345-0',
         'fax': '+49 40 12345-99',
         'website': 'https://www.demo-corp.example',
-        'logo_url': 'https://raw.githubusercontent.com/onlinecrash24/signatur-manager/main/app/static/img/logo.png',
+        'logo_url': 'https://www.signatool.de/logo.png',
     }
 
 
