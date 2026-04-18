@@ -66,7 +66,7 @@
                 <ul class="navbar-nav ms-auto">
                     <!-- Language switcher -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-globe"></i> {{ 'EN' if current_lang == 'en' else 'DE' }}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
@@ -132,6 +132,15 @@
     </footer>
 
     <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <script>
+        // Force reload on BFCache restore (browser Back/Forward).
+        // Prevents stale state where buttons / dropdowns become unresponsive.
+        window.addEventListener('pageshow', function (event) {
+            if (event.persisted) {
+                window.location.reload();
+            }
+        });
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>
