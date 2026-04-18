@@ -33,15 +33,17 @@ services:
     container_name: signature-manager
     network_mode: host
     environment:
-      - SECRET_KEY=bitte-aendern-geheimer-schluessel-12345
-      - ADMIN_USER=admin
-      - ADMIN_PASSWORD=MeinSicheresPasswort123
+      # === Diese Variablen anpassen ===
+      - SECRET_KEY=bitte-aendern-geheimer-schluessel-12345   # ÄNDERN: zufällige Zeichenkette zum Signieren der Sessions
+      - ADMIN_USER=admin                                     # ÄNDERN (optional): Admin-Benutzername
+      - ADMIN_PASSWORD=MeinSicheresPasswort123               # ÄNDERN: Admin-Passwort
+      - LISTEN_PORT=5010                                     # ÄNDERN (optional): Port, auf dem die Anwendung lauscht
+      - DEFAULT_LANG=de                                      # ÄNDERN (optional): 'de' oder 'en'
+      # === Standardwerte (passen zum unten definierten Named Volume) ===
       - DATABASE_URL=sqlite:////opt/signature-tool/data/signatures.db
       - DATA_DIR=/opt/signature-tool/data
       - GENERATED_DIR=/opt/signature-tool/data/generated
       - UPLOAD_FOLDER=/opt/signature-tool/data/uploads
-      - LISTEN_PORT=5010
-      - DEFAULT_LANG=de
     volumes:
       - signature-data:/opt/signature-tool/data
     restart: unless-stopped
