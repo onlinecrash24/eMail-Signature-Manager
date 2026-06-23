@@ -399,11 +399,13 @@ def generate_signatures(tenant_id):
             with open(os.path.join(emp_dir, f'{folder_name}.htm'), 'w', encoding='utf-8') as f:
                 f.write(html_content)
 
-        # Generate TXT — UTF-8 with BOM so Outlook Classic detects the encoding
-        # and renders umlauts (ä, ö, ü, ß) correctly instead of treating the file as CP1252.
+        # Generate TXT — Windows-1252 (ANSI). Outlook Classic reads signature
+        # .txt files as ANSI/CP1252 by system codepage and shows mojibake for
+        # UTF-8 (even with BOM, which appears as the visible "ï»¿" prefix).
+        # Characters outside CP1252 are replaced with '?' to avoid write errors.
         if tenant.txt_template:
             txt_content = _render_template_string(tenant.txt_template, variables)
-            with open(os.path.join(emp_dir, f'{folder_name}.txt'), 'w', encoding='utf-8-sig') as f:
+            with open(os.path.join(emp_dir, f'{folder_name}.txt'), 'w', encoding='cp1252', errors='replace') as f:
                 f.write(txt_content)
 
         # Generate RTF
